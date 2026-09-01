@@ -95,6 +95,24 @@
     border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--ink);
   }
   .kbd input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+  details.addbox{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:12px 14px;margin:18px 0 0}
+  details.addbox summary{cursor:pointer;font-size:16px;font-weight:600;list-style:none}
+  details.addbox summary::-webkit-details-marker{display:none}
+  details.addbox summary::before{content:"＋ ";color:var(--gold)}
+  details[open].addbox summary::before{content:"− ";color:var(--gold)}
+  .form{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .form input,.form select,.form textarea{
+    font-family:inherit;font-size:16px;padding:9px 11px;border:1px solid var(--line);
+    border-radius:2px;background:#fff;color:var(--ink);width:100%;
+  }
+  .form input[lang=ja]{font-family:var(--jp)}
+  .form textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;height:130px}
+  .form p{margin:0;font-size:14px;color:var(--ink-soft)}
+  .form p.ok{color:var(--ok)}
+  ul.perso{list-style:none;margin:6px 0 0;padding:0;font-size:15px}
+  ul.perso li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+  ul.perso li span.jp{font-family:var(--jp)}
+  ul.perso button{background:none;border:none;color:var(--seal);font-size:18px;cursor:pointer;padding:0 4px;font-family:inherit}
   .modes{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px}
   .modes button{
     font-family:inherit;font-size:14.5px;padding:8px 14px;border-radius:2px;cursor:pointer;
@@ -139,6 +157,22 @@
       <button data-m="self">Auto-évaluation</button>
     </div>
     <p class="modehelp" id="modehelp"></p>
+    <details class="addbox">
+      <summary>Ajouter mes propres mots</summary>
+      <div class="form">
+        <select id="aCat"></select>
+        <input id="aEmoji" placeholder="Emoji, par exemple 🍜" maxlength="6">
+        <input id="aFr" placeholder="Français : les ramen">
+        <input id="aJa" lang="ja" placeholder="Japonais : ラーメン">
+        <input id="aRomaji" placeholder="Rōmaji : rāmen">
+        <div class="row" style="margin:0">
+          <button class="act" id="aAdd">Ajouter</button>
+          <button class="act ghost" id="aExport">Exporter</button>
+        </div>
+        <p id="aMsg"></p>
+        <ul class="perso" id="aList"></ul>
+      </div>
+    </details>
     <small class="note">Progression enregistrée automatiquement. Les mots ratés reviennent plus souvent ; un mot est acquis après trois réussites.</small>
   </section>
 
@@ -178,99 +212,18 @@
   </section>
 </div>
 
+<script src="mots.js"></script>
 <script>
-/* ---------------- données ---------------- */
-const CATS = {
-  politesse:{label:"Politesse", kanji:"礼"},
-  transport:{label:"Transports", kanji:"駅"},
-  direction:{label:"Se repérer", kanji:"道"},
-  resto:{label:"Au restaurant", kanji:"食"},
-  achats:{label:"Achats", kanji:"買"},
-  hotel:{label:"Hôtel", kanji:"泊"},
-  secours:{label:"Pépins & santé", kanji:"助"},
-  chiffres:{label:"Chiffres", kanji:"数"}
-};
-
-const W = [
-  // politesse
-  ["politesse","🙇‍♀️","Bonjour (journée)","こんにちは","konnichiwa"],
-  ["politesse","🌙","Bonsoir","こんばんは","konbanwa"],
-  ["politesse","🙏","Merci beaucoup","ありがとうございます","arigatō gozaimasu"],
-  ["politesse","✋","Excusez-moi / pardon","すみません","sumimasen"],
-  ["politesse","🤲","S'il vous plaît","お願いします","onegaishimasu"],
-  ["politesse","❓","Je ne comprends pas","わかりません","wakarimasen"],
-  ["politesse","🇬🇧","Parlez-vous anglais ?","英語を話せますか","eigo o hanasemasu ka",["えいごをはなせますか","はなせますか"]],
-  ["politesse","🐢","Plus lentement, s'il vous plaît","ゆっくりお願いします","yukkuri onegaishimasu"],
-  ["politesse","🔁","Encore une fois, s'il vous plaît","もう一度お願いします","mō ichido onegaishimasu",["もういちどおねがいします"]],
-  ["politesse","👌","Ça va, c'est bon","大丈夫です","daijōbu desu",["だいじょうぶです"]],
-  ["politesse","👋","Au revoir","さようなら","sayōnara"],
-  // transport
-  ["transport","🚉","La gare","駅","eki",["えき"]],
-  ["transport","🚃","Le train","電車","densha",["でんしゃ"]],
-  ["transport","🚇","Le métro","地下鉄","chikatetsu",["ちかてつ"]],
-  ["transport","🚌","Le bus","バス","basu"],
-  ["transport","🚕","Le taxi","タクシー","takushī"],
-  ["transport","🎫","Le billet","切符","kippu",["きっぷ"]],
-  ["transport","✈️","L'aéroport","空港","kūkō",["くうこう"]],
-  ["transport","🚪","La sortie","出口","deguchi",["でぐち"]],
-  ["transport","📍","Je voudrais aller ici","ここに行きたいです","koko ni ikitai desu",["ここにいきたいです"]],
-  ["transport","🕐","Il est quelle heure ?","何時ですか","nanji desu ka",["なんじですか"]],
-  // direction
-  ["direction","🗺️","C'est où ?","どこですか","doko desu ka"],
-  ["direction","🚻","Où sont les toilettes ?","トイレはどこですか","toire wa doko desu ka",["といれはどこですか"]],
-  ["direction","➡️","À droite","右","migi",["みぎ"]],
-  ["direction","⬅️","À gauche","左","hidari",["ひだり"]],
-  ["direction","⬆️","Tout droit","まっすぐ","massugu"],
-  ["direction","🚶‍♀️","C'est loin ?","遠いですか","tōi desu ka",["とおいですか"]],
-  ["direction","🧭","Je suis perdue","道に迷いました","michi ni mayoimashita",["みちにまよいました"]],
-  // resto
-  ["resto","📖","Le menu, s'il vous plaît","メニューをお願いします","menyū o onegaishimasu",["めにゅーをおねがいします"]],
-  ["resto","👉","Celui-ci, s'il vous plaît","これをください","kore o kudasai"],
-  ["resto","💧","De l'eau","お水","omizu",["おみず"]],
-  ["resto","🍵","Du thé","お茶","ocha",["おちゃ"]],
-  ["resto","🍺","Une bière","ビール","bīru"],
-  ["resto","😋","C'est délicieux","おいしいです","oishii desu"],
-  ["resto","🧾","L'addition, s'il vous plaît","お会計お願いします","okaikei onegaishimasu",["おかいけいおねがいします"]],
-  ["resto","🥗","Je suis végétarienne","ベジタリアンです","bejitarian desu"],
-  ["resto","🥩","La viande","肉","niku",["にく"]],
-  ["resto","🐟","Le poisson","魚","sakana",["さかな"]],
-  ["resto","🙏","Avant de manger","いただきます","itadakimasu"],
-  ["resto","🍚","Après le repas","ごちそうさまでした","gochisōsama deshita"],
-  // achats
-  ["achats","💴","C'est combien ?","いくらですか","ikura desu ka"],
-  ["achats","💳","Je peux payer par carte ?","カードで払えますか","kādo de haraemasu ka",["かーどではらえますか"]],
-  ["achats","😮","C'est cher","高いです","takai desu",["たかいです"]],
-  ["achats","🛍️","Un sac, s'il vous plaît","袋をください","fukuro o kudasai",["ふくろをください"]],
-  ["achats","👀","Je regarde seulement","見ているだけです","mite iru dake desu",["みているだけです"]],
-  // hotel
-  ["hotel","🏨","L'hôtel","ホテル","hoteru"],
-  ["hotel","📝","J'ai une réservation","予約しています","yoyaku shite imasu",["よやくしています"]],
-  ["hotel","🔑","La clé","鍵","kagi",["かぎ"]],
-  ["hotel","🧳","Les bagages","荷物","nimotsu",["にもつ"]],
-  ["hotel","📶","Il y a le wifi ?","Wi-Fiはありますか","waifai wa arimasu ka",["わいふぁいはありますか","わいふぁい"]],
-  ["hotel","⏰","À quelle heure le petit-déjeuner ?","朝ごはんは何時ですか","asagohan wa nanji desu ka",["あさごはんはなんじですか"]],
-  // secours
-  ["secours","🆘","Au secours !","助けて","tasukete",["たすけて"]],
-  ["secours","🏥","L'hôpital","病院","byōin",["びょういん"]],
-  ["secours","👮","La police","警察","keisatsu",["けいさつ"]],
-  ["secours","💊","La pharmacie","薬局","yakkyoku",["やっきょく"]],
-  ["secours","🤒","Je ne me sens pas bien","気分が悪いです","kibun ga warui desu",["きぶんがわるいです"]],
-  ["secours","🎒","J'ai perdu quelque chose","落としました","otoshimashita",["おとしました"]],
-  ["secours","📞","Appelez un médecin","医者を呼んでください","isha o yonde kudasai",["いしゃをよんでください"]],
-  // chiffres
-  ["chiffres","1️⃣","Un","一","ichi",["いち"]],
-  ["chiffres","2️⃣","Deux","二","ni",["に"]],
-  ["chiffres","3️⃣","Trois","三","san",["さん"]],
-  ["chiffres","4️⃣","Quatre","四","yon",["よん","し"]],
-  ["chiffres","5️⃣","Cinq","五","go",["ご"]],
-  ["chiffres","6️⃣","Six","六","roku",["ろく"]],
-  ["chiffres","7️⃣","Sept","七","nana",["なな","しち"]],
-  ["chiffres","8️⃣","Huit","八","hachi",["はち"]],
-  ["chiffres","9️⃣","Neuf","九","kyū",["きゅう","く"]],
-  ["chiffres","🔟","Dix","十","jū",["じゅう"]],
-  ["chiffres","💯","Cent","百","hyaku",["ひゃく"]],
-  ["chiffres","🏯","Mille","千","sen",["せん"]]
-].map((r,i)=>({id:i,cat:r[0],emoji:r[1],fr:r[2],ja:r[3],romaji:r[4],accept:[r[3]].concat(r[5]||[])}));
+const CATS = RUBRIQUES;
+let PERSO=[];
+const carte=(r,i)=>({id:i,cat:r[0],emoji:r[1],fr:r[2],ja:r[3],romaji:r[4],accept:[r[3]].concat(r[5]||[])});
+let W = MOTS.map(carte);
+function rebuildW(){
+  W = MOTS.map(carte).concat(PERSO.map((m,i)=>({
+    id:"p"+i,cat:m.cat,emoji:m.emoji||"📝",fr:m.fr,ja:m.ja,romaji:m.romaji,
+    accept:[m.ja],perso:true
+  })));
+}
 
 const DRILLS = [
   {t:"つ, ce n'est pas « tsou »",d:"La langue part de derrière les dents, comme le « ts » de « tsé-tsé », et le う est court et peu arrondi.",ex:"一<em>つ</em> ・ <em>つ</em>くえ ・ く<em>つ</em>",say:"ひとつ"},
@@ -311,6 +264,23 @@ function best(heardList,accepts){
 /* ---------------- progression ---------------- */
 let prog={box:{},streak:0};
 const KEY="nihongo-voyage";
+const KEY_PERSO="nihongo-mots-perso";
+async function loadPerso(){
+  try{
+    let v=null;
+    if(window.storage){const r=await window.storage.get(KEY_PERSO);v=r&&r.value;}
+    else v=localStorage.getItem(KEY_PERSO);
+    if(v)PERSO=JSON.parse(v)||[];
+  }catch(e){PERSO=[];}
+  rebuildW();
+}
+async function savePerso(){
+  try{
+    if(window.storage)await window.storage.set(KEY_PERSO,JSON.stringify(PERSO));
+    else localStorage.setItem(KEY_PERSO,JSON.stringify(PERSO));
+  }catch(e){}
+  rebuildW();
+}
 async function load(){
   try{
     if(window.storage){const r=await window.storage.get(KEY);if(r&&r.value)prog=JSON.parse(r.value);}
@@ -568,6 +538,44 @@ function paintDrills(){
   });
 }
 
+/* mots personnels */
+function paintPerso(){
+  const sel=$("aCat");
+  if(!sel.options.length){
+    Object.entries(CATS).forEach(([k,c])=>{
+      const o=document.createElement("option");o.value=k;o.textContent=c.label;sel.appendChild(o);
+    });
+  }
+  const ul=$("aList");ul.innerHTML="";
+  PERSO.forEach((m,i)=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<span>${m.emoji||"📝"} ${m.fr} — <span class="jp">${m.ja}</span></span>`;
+    const b=document.createElement("button");b.textContent="×";b.title="Supprimer";
+    b.onclick=async()=>{PERSO.splice(i,1);await savePerso();paintPerso();paintCats();};
+    li.appendChild(b);ul.appendChild(li);
+  });
+}
+function msg(t,ok){const p=$("aMsg");p.textContent=t;p.className=ok?"ok":"";}
+$("aAdd").onclick=async()=>{
+  const m={cat:$("aCat").value,emoji:$("aEmoji").value.trim(),
+    fr:$("aFr").value.trim(),ja:$("aJa").value.trim(),romaji:$("aRomaji").value.trim()};
+  if(!m.fr||!m.ja){msg("Il faut au minimum le français et le japonais.");return;}
+  if(!/[\u3040-\u30ff\u4e00-\u9faf]/.test(m.ja)){msg("Le champ japonais doit contenir des kana ou des kanji.");return;}
+  PERSO.push(m);await savePerso();
+  ["aEmoji","aFr","aJa","aRomaji"].forEach(id=>$(id).value="");
+  msg("Ajouté. Le mot apparaît dès la prochaine série.",true);
+  paintPerso();paintCats();
+};
+$("aExport").onclick=async()=>{
+  if(!PERSO.length){msg("Aucun mot personnel pour l'instant.");return;}
+  const lignes=PERSO.map(m=>`  [${JSON.stringify(m.cat)},${JSON.stringify(m.emoji||"📝")},${JSON.stringify(m.fr)},${JSON.stringify(m.ja)},${JSON.stringify(m.romaji)}],`).join("\n");
+  let ta=$("aTa");
+  if(!ta){ta=document.createElement("textarea");ta.id="aTa";ta.readOnly=true;$("aList").before(ta);}
+  ta.value=lignes;ta.select();
+  try{await navigator.clipboard.writeText(lignes);msg("Copié. À coller dans mots.js sur GitHub.",true);}
+  catch(e){msg("Sélectionne le texte ci-dessus et copie-le, puis colle-le dans mots.js.");}
+};
+
 /* PWA : installation + hors connexion */
 let deferredPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{
@@ -586,8 +594,8 @@ if("serviceWorker" in navigator){
 
 /* init */
 (async()=>{
-  await load();
-  paintCats();paintDrills();paintModes();
+  await load();await loadPerso();
+  paintCats();paintDrills();paintModes();paintPerso();
   if(!canMic)showWarn("kbd");
 })();
 </script>
