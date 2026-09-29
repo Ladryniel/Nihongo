@@ -1,0 +1,830 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nihongo de voyage</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DCE4DD">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Nihongo">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --paper:#DCE4DD;
+    --card:#F3F6F1;
+    --ink:#16241E;
+    --ink-soft:#55665D;
+    --line:#C3CFC5;
+    --gold:#A8762A;
+    --seal:#B2402F;
+    --ok:#3F7A57;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --jp:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,"MS Gothic",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:28px 20px 64px}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:26px}
+  h1{font-size:26px;font-weight:600;letter-spacing:-.01em;margin:0}
+  h1 span{font-family:var(--jp);font-size:20px;color:var(--ink-soft);margin-left:10px;letter-spacing:.08em}
+  .score{font-size:14px;color:var(--ink-soft);text-align:right;white-space:nowrap}
+  .score b{font-weight:600;color:var(--ink)}
+
+  .intro{color:var(--ink-soft);margin:0 0 24px;max-width:58ch}
+
+  .cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:26px}
+  .cat{
+    background:var(--card);border:1px solid var(--line);border-radius:2px;
+    padding:14px 14px 12px;text-align:left;cursor:pointer;font-family:inherit;font-size:16px;color:var(--ink);
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .cat:hover{border-color:var(--gold)}
+  .cat .kj{font-family:var(--jp);font-size:13px;color:var(--seal);letter-spacing:.1em}
+  .cat .meta{font-size:13px;color:var(--ink-soft)}
+  .cat.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  button.act{
+    font-family:inherit;font-size:16px;padding:11px 20px;border-radius:2px;cursor:pointer;
+    background:var(--ink);color:var(--card);border:1px solid var(--ink);
+  }
+  button.act.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  button.act.ghost:hover{border-color:var(--ink)}
+  button.act:disabled{opacity:.4;cursor:default}
+  .toggle{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:7px;cursor:pointer}
+
+  /* carte */
+  .stage{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:28px 24px 24px;position:relative;text-align:center}
+  .seal{position:absolute;top:14px;right:14px;width:34px;height:34px;border:1.5px solid var(--seal);color:var(--seal);
+    font-family:var(--jp);font-size:17px;display:flex;align-items:center;justify-content:center;border-radius:2px;opacity:.85}
+  .emoji{font-size:76px;line-height:1;margin:6px 0 14px;filter:saturate(.92)}
+  .fr{font-size:23px;font-weight:600;margin:0 0 4px}
+  .hint{font-size:14px;color:var(--ink-soft);margin:0}
+  .answer{margin:18px 0 0;min-height:76px}
+  .ja{font-family:var(--jp);font-size:34px;line-height:1.35;margin:0}
+  .romaji{font-size:16px;color:var(--ink-soft);margin:2px 0 0;font-style:italic}
+  .veil{color:var(--ink-soft);font-size:15px;padding:24px 0}
+
+  .mic{
+    width:82px;height:82px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;
+    font-size:30px;cursor:pointer;margin:20px auto 6px;display:block;color:var(--ink);
+    transition:background .15s,border-color .15s;
+  }
+  .mic:hover{background:rgba(168,118,42,.1)}
+  .mic.live{border-color:var(--gold);background:rgba(168,118,42,.16);animation:pulse 1.15s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(168,118,42,.45)}100%{box-shadow:0 0 0 22px rgba(168,118,42,0)}}
+  @media (prefers-reduced-motion:reduce){.mic.live{animation:none}}
+
+  .status{min-height:46px;font-size:15px;color:var(--ink-soft);margin:4px 0 0}
+  .status .heard{font-family:var(--jp);color:var(--ink)}
+  .status.good{color:var(--ok);font-weight:600}
+  .status.near{color:var(--gold)}
+
+  .kbd{display:flex;gap:8px;margin:18px 0 4px}
+  .kbd input{
+    flex:1;min-width:0;font-family:var(--jp);font-size:19px;padding:11px 12px;
+    border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--ink);
+  }
+  .kbd input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+  details.addbox{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:12px 14px;margin:18px 0 0}
+  details.addbox summary{cursor:pointer;font-size:16px;font-weight:600;list-style:none}
+  details.addbox summary::-webkit-details-marker{display:none}
+  details.addbox summary::before{content:"＋ ";color:var(--gold)}
+  details[open].addbox summary::before{content:"− ";color:var(--gold)}
+  .form{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .form input,.form select,.form textarea{
+    font-family:inherit;font-size:16px;padding:9px 11px;border:1px solid var(--line);
+    border-radius:2px;background:#fff;color:var(--ink);width:100%;
+  }
+  .form input[lang=ja]{font-family:var(--jp)}
+  .form textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;height:130px}
+  .form p{margin:0;font-size:14px;color:var(--ink-soft)}
+  .form p.ok{color:var(--ok)}
+  ul.perso{list-style:none;margin:6px 0 0;padding:0;font-size:15px}
+  ul.perso li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+  ul.perso li span.jp{font-family:var(--jp)}
+  ul.perso button{background:none;border:none;color:var(--seal);font-size:18px;cursor:pointer;padding:0 4px;font-family:inherit}
+  .modes{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px}
+  .modes button{
+    font-family:inherit;font-size:14.5px;padding:8px 14px;border-radius:2px;cursor:pointer;
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+  }
+  .modes button.on{border-color:var(--gold);color:var(--ink);box-shadow:inset 0 0 0 1px var(--gold)}
+  .modehelp{font-size:13.5px;color:var(--ink-soft);margin:0 0 6px;max-width:58ch}
+  .bar{height:3px;background:var(--line);margin:22px 0 8px;position:relative}
+  .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--gold);transition:width .3s}
+
+  .kmenu{display:grid;gap:10px;margin-bottom:6px}
+  .kmenu button{
+    font-family:inherit;font-size:17px;text-align:left;padding:15px 16px;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:2px;color:var(--ink);
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .kmenu button:hover{border-color:var(--gold)}
+  .kmenu button small{font-size:13.5px;color:var(--ink-soft);font-weight:400}
+  .kmenu button .kj{font-family:var(--jp);color:var(--seal);font-size:14px;letter-spacing:.12em}
+  h2.ktitle{font-size:21px;font-weight:600;margin:0 0 4px}
+  p.ksub{color:var(--ink-soft);font-size:14.5px;margin:0 0 16px;max-width:56ch}
+  .kgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .kcell{
+    background:var(--card);border:1px solid var(--line);border-radius:2px;
+    padding:10px 2px 7px;text-align:center;cursor:pointer;font-family:inherit;color:var(--ink);
+  }
+  .kcell:active,.kcell.on{border-color:var(--gold);background:rgba(168,118,42,.12)}
+  .kcell .c{font-family:var(--jp);font-size:26px;line-height:1.1;display:block}
+  .kcell .r{font-size:12px;color:var(--ink-soft);display:block;margin-top:2px}
+  .kcell.vide{visibility:hidden;pointer-events:none}
+  .kq{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:26px 18px;text-align:center;margin-bottom:14px}
+  .kq .big{font-family:var(--jp);font-size:60px;line-height:1.2;margin:0}
+  .kq .sens{font-size:15px;color:var(--ink-soft);margin:10px 0 0;min-height:22px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .opts button{
+    font-family:inherit;font-size:18px;padding:14px 8px;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:2px;color:var(--ink);
+  }
+  .opts button.bon{border-color:var(--ok);background:rgba(63,122,87,.15);color:var(--ok);font-weight:600}
+  .opts button.faux{border-color:var(--seal);background:rgba(178,64,47,.12);color:var(--seal)}
+  .drill{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:16px 18px;margin-bottom:10px}
+  .drill h3{margin:0 0 4px;font-size:18px;font-weight:600}
+  .drill p{margin:0 0 10px;color:var(--ink-soft);font-size:15px;max-width:56ch}
+  .drill .ex{font-family:var(--jp);font-size:22px;margin:0 0 10px}
+  .drill .ex em{font-style:normal;color:var(--seal)}
+  small.note{display:block;color:var(--ink-soft);font-size:13.5px;margin-top:26px;max-width:60ch}
+  a{color:var(--gold)}
+  .warn{border-left:2px solid var(--gold);padding:10px 14px;background:rgba(168,118,42,.07);font-size:14.5px;color:var(--ink-soft);margin-bottom:20px}
+  .hidden{display:none}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Nihongo de voyage<span>旅の日本語</span></h1>
+    <div class="score" id="score"></div>
+  </header>
+
+  <div id="warn" class="warn hidden"></div>
+
+  <!-- ACCUEIL -->
+  <section id="home">
+    <p class="intro">Une image, un mot à dire à voix haute. Si la reconnaissance vocale japonaise te comprend, tu passes à la carte suivante. Choisis une ou plusieurs situations.</p>
+    <div class="cats" id="cats"></div>
+    <div class="row">
+      <button class="act" id="start">Commencer à parler</button>
+      <button class="act ghost" id="goKana">Hiragana & katakana</button>
+      <button class="act ghost" id="goDrills">Exercices de prononciation</button>
+      <button class="act ghost hidden" id="install">Installer sur l'écran d'accueil</button>
+    </div>
+    <div class="modes" id="modes">
+      <button data-m="mic">Micro de la page</button>
+      <button data-m="kbd">Micro du clavier</button>
+      <button data-m="self">Auto-évaluation</button>
+    </div>
+    <p class="modehelp" id="modehelp"></p>
+    <details class="addbox">
+      <summary>Ajouter mes propres mots</summary>
+      <div class="form">
+        <select id="aCat"></select>
+        <input id="aEmoji" placeholder="Emoji, par exemple 🍜" maxlength="6">
+        <input id="aFr" placeholder="Français : les ramen">
+        <input id="aJa" lang="ja" placeholder="Japonais : ラーメン">
+        <input id="aRomaji" placeholder="Rōmaji : rāmen">
+        <div class="row" style="margin:0">
+          <button class="act" id="aAdd">Ajouter</button>
+          <button class="act ghost" id="aExport">Exporter</button>
+        </div>
+        <p id="aMsg"></p>
+        <ul class="perso" id="aList"></ul>
+      </div>
+    </details>
+    <small class="note">Progression enregistrée automatiquement. Les mots ratés reviennent plus souvent ; un mot est acquis après trois réussites.</small>
+  </section>
+
+  <!-- ENTRAÎNEMENT -->
+  <section id="practice" class="hidden">
+    <div class="stage">
+      <div class="seal" id="seal"></div>
+      <div class="emoji" id="emoji"></div>
+      <p class="fr" id="fr"></p>
+      <p class="hint" id="hint"></p>
+      <div class="answer" id="answer"><p class="veil">Dis-le en japonais, puis appuie sur le micro.</p></div>
+      <button class="mic" id="mic" title="Parler">🎙</button>
+      <div class="kbd hidden" id="kbdRow">
+        <input id="kbdInput" type="text" lang="ja" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="🎤 du clavier, ou tape en rōmaji">
+        <button class="act" id="kbdCheck">Vérifier</button>
+      </div>
+      <p class="status" id="status"></p>
+    </div>
+    <div class="bar"><i id="barFill" style="width:0%"></i></div>
+    <div class="row" style="margin-top:14px">
+      <button class="act ghost" id="listen">Écouter le modèle</button>
+      <button class="act ghost" id="reveal">Montrer la réponse</button>
+      <button class="act ghost" id="skip">Passer</button>
+      <button class="act ghost" id="quit">Retour</button>
+    </div>
+    <div class="row hidden" id="selfRow">
+      <button class="act" id="selfOk">Je l'ai bien dit</button>
+      <button class="act ghost" id="selfNo">À revoir</button>
+    </div>
+  </section>
+
+  <!-- KANA -->
+  <section id="kana" class="hidden">
+    <div id="kanabody"></div>
+    <div class="row" style="margin-top:16px"><button class="act ghost" id="kanaBack">Retour</button></div>
+  </section>
+
+  <!-- DRILLS -->
+  <section id="drills" class="hidden">
+    <p class="intro">Les sons qui font trébucher les francophones. Écoute, répète, puis vérifie au micro.</p>
+    <div id="drillList"></div>
+    <div class="row"><button class="act ghost" id="quitDrills">Retour</button></div>
+  </section>
+</div>
+
+<script src="mots.js"></script>
+<script src="kana.js"></script>
+<script>
+const CATS = RUBRIQUES;
+let PERSO=[];
+const carte=(r,i)=>({id:i,cat:r[0],emoji:r[1],fr:r[2],ja:r[3],romaji:r[4],accept:[r[3]].concat(r[5]||[])});
+let W = MOTS.map(carte);
+function rebuildW(){
+  W = MOTS.map(carte).concat(PERSO.map((m,i)=>({
+    id:"p"+i,cat:m.cat,emoji:m.emoji||"📝",fr:m.fr,ja:m.ja,romaji:m.romaji,
+    accept:[m.ja],perso:true
+  })));
+}
+
+const DRILLS = [
+  {t:"つ, ce n'est pas « tsou »",d:"La langue part de derrière les dents, comme le « ts » de « tsé-tsé », et le う est court et peu arrondi.",ex:"一<em>つ</em> ・ <em>つ</em>くえ ・ く<em>つ</em>",say:"ひとつ"},
+  {t:"ら り る れ ろ, entre R et L",d:"Un seul battement de langue contre le palais, proche du « r » espagnol de « pero ». Surtout pas le R français raclé.",ex:"<em>ら</em>いねん ・ さく<em>ら</em> ・ <em>りょ</em>こう",say:"さくら"},
+  {t:"Les voyelles longues comptent",d:"おばさん est une dame, おばあさん une grand-mère. Tiens la voyelle deux temps, sans changer de hauteur.",ex:"とう<em>きょう</em> ・ ビ<em>ー</em>ル ・ く<em>う</em>こう",say:"とうきょう"},
+  {t:"Le う de です et ます s'efface",d:"On dit « dess » et « mass ». Le う final est chuchoté, presque muet.",ex:"そう<em>です</em> ・ わかり<em>ます</em>",say:"わかります"},
+  {t:"ん se colore selon la suite",d:"Devant b, p, m il devient « m » : senpai sonne « sempai ». En fin de mot, c'est un son nasal tenu, pas le « n » français.",ex:"せ<em>ん</em>ぱい ・ に<em>ほん</em>",say:"せんぱい"},
+  {t:"Chaque more dure le même temps",d:"Le japonais se scande, il ne s'accentue pas comme le français. Ne pose pas d'accent tonique sur la dernière syllabe.",ex:"か・ま・く・ら ・ あ・り・が・と・う",say:"かまくら"}
+];
+
+/* ---------------- utilitaires ---------------- */
+const $=id=>document.getElementById(id);
+const kata2hira=s=>s.replace(/[\u30A1-\u30F6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
+function norm(s){
+  return kata2hira(String(s||""))
+    .toLowerCase()
+    .replace(/[ー・、。！？!?,.\s「」『』]/g,"")
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+}
+function lev(a,b){
+  const m=a.length,n=b.length;if(!m)return n;if(!n)return m;
+  let prev=Array.from({length:n+1},(_,j)=>j),cur=new Array(n+1);
+  for(let i=1;i<=m;i++){cur[0]=i;
+    for(let j=1;j<=n;j++){cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));}
+    [prev,cur]=[cur,prev];}
+  return prev[n];
+}
+const sim=(a,b)=>{a=norm(a);b=norm(b);const L=Math.max(a.length,b.length);return L?1-lev(a,b)/L:0;};
+function best(heardList,accepts){
+  let s=0;
+  for(const h of heardList) for(const a of accepts){
+    const v=sim(h,a); if(v>s)s=v;
+    if(norm(h).includes(norm(a))&&norm(a).length>=2) s=Math.max(s,.95);
+  }
+  return s;
+}
+
+/* ---------------- progression ---------------- */
+let prog={box:{},streak:0};
+const KEY="nihongo-voyage";
+const KEY_PERSO="nihongo-mots-perso";
+async function loadPerso(){
+  try{
+    let v=null;
+    if(window.storage){const r=await window.storage.get(KEY_PERSO);v=r&&r.value;}
+    else v=localStorage.getItem(KEY_PERSO);
+    if(v)PERSO=JSON.parse(v)||[];
+  }catch(e){PERSO=[];}
+  rebuildW();
+}
+async function savePerso(){
+  try{
+    if(window.storage)await window.storage.set(KEY_PERSO,JSON.stringify(PERSO));
+    else localStorage.setItem(KEY_PERSO,JSON.stringify(PERSO));
+  }catch(e){}
+  rebuildW();
+}
+async function load(){
+  try{
+    if(window.storage){const r=await window.storage.get(KEY);if(r&&r.value)prog=JSON.parse(r.value);}
+    else{const v=localStorage.getItem(KEY);if(v)prog=JSON.parse(v);}
+  }catch(e){}
+  paintScore();
+}
+async function save(){
+  try{
+    if(window.storage)await window.storage.set(KEY,JSON.stringify(prog));
+    else localStorage.setItem(KEY,JSON.stringify(prog));
+  }catch(e){}
+}
+const SEUIL=3;
+function paintScore(){
+  const v=Object.values(prog.box||{});
+  const done=v.filter(b=>b>=SEUIL).length;
+  const encours=v.filter(b=>b>0&&b<SEUIL).length;
+  $("score").innerHTML=`<b>${done}</b> / ${W.length} mots acquis<br>${encours} en cours · série : <b>${prog.streak||0}</b>`;
+}
+
+/* ---------------- voix ---------------- */
+let jaVoice=null;
+function pickVoice(){
+  const vs=speechSynthesis.getVoices()||[];
+  jaVoice=vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith("ja"))||null;
+}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function speak(text){
+  if(!window.speechSynthesis)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="ja-JP";u.rate=.85;if(jaVoice)u.voice=jaVoice;
+  speechSynthesis.speak(u);
+}
+
+/* ---------------- reconnaissance ---------------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null,listening=false,micBlocked=false;
+function initRec(onResult,onEnd){
+  if(!SR)return null;
+  const r=new SR();
+  r.lang="ja-JP";r.interimResults=false;r.maxAlternatives=5;r.continuous=false;
+  r.onresult=e=>{
+    const alts=[];const res=e.results[e.results.length-1];
+    for(let i=0;i<res.length;i++)alts.push(res[i].transcript);
+    onResult(alts);
+  };
+  r.onerror=e=>{
+    if(e.error==="not-allowed"||e.error==="service-not-allowed"){micBlocked=true;showWarn(location.protocol==="file:"?"file":"blocked");}
+    else if(e.error==="no-speech"){setStatus("Je n'ai rien entendu. Rapproche-toi du micro et réessaie.","");}
+  };
+  r.onend=()=>{listening=false;onEnd&&onEnd();};
+  return r;
+}
+function showWarn(kind){
+  const w=$("warn");w.classList.remove("hidden");
+  if(kind==="kbd"||kind==="file"){
+    w.innerHTML="Le micro de la page n'est pas disponible ici (fichier local ou navigateur non compatible). Le mode <b>Micro du clavier</b> est activé : il donne exactement le même exercice oral.";
+  }else if(kind==="blocked"){
+    w.innerHTML="Micro refusé. Clique sur l'icône de cadenas à gauche de l'adresse → Micro → Autoriser, puis recharge la page. Le mode auto-évaluation reste disponible en attendant.";
+  }else{
+    w.innerHTML="Ce navigateur ne gère pas la reconnaissance vocale : il faut Chrome ou Edge. Passe en mode auto-évaluation.";
+  }
+}
+
+/* ---------------- accueil ---------------- */
+let selected=new Set(Object.keys(CATS));
+function paintCats(){
+  $("cats").innerHTML="";
+  Object.entries(CATS).forEach(([k,c])=>{
+    const n=W.filter(w=>w.cat===k).length;
+    const done=W.filter(w=>w.cat===k&&(prog.box[w.id]||0)>=SEUIL).length;
+    const b=document.createElement("button");
+    b.className="cat"+(selected.has(k)?" on":"");
+    b.innerHTML=`<span class="kj">${c.kanji}</span>${c.label}<span class="meta">${done}/${n} acquis</span>`;
+    b.onclick=()=>{selected.has(k)?selected.delete(k):selected.add(k);paintCats();};
+    $("cats").appendChild(b);
+  });
+}
+
+/* ---------------- session ---------------- */
+let deck=[],idx=0,cur=null,revealed=false;
+const canMic=!!SR&&window.isSecureContext;
+let mode=canMic?"mic":"kbd";
+const MODEHELP={
+  mic:"La page écoute directement. Demande Chrome ou Edge sur une adresse sécurisée.",
+  kbd:"Appuie sur le champ, puis sur le micro de ton clavier, et dis le mot en japonais. Ajoute le japonais dans les langues de ton clavier (Gboard → Langues → Japonais) pour qu'il écrive en kana. Le rōmaji tapé est accepté aussi.",
+  self:"Tu dis le mot à voix haute, tu révèles la réponse, tu juges toi-même."
+};
+function paintModes(){
+  document.querySelectorAll("#modes button").forEach(b=>{
+    b.classList.toggle("on",b.dataset.m===mode);
+    b.disabled=(b.dataset.m==="mic"&&!canMic);
+    b.style.opacity=b.disabled?.4:1;
+  });
+  $("modehelp").textContent=MODEHELP[mode]+(mode==="mic"||canMic?"":"");
+}
+document.querySelectorAll("#modes button").forEach(b=>{
+  b.onclick=()=>{if(b.disabled)return;mode=b.dataset.m;paintModes();};
+});
+
+function normRomaji(s){
+  return String(s||"").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z]/g,"")
+    .replace(/ou/g,"o").replace(/oo/g,"o").replace(/uu/g,"u")
+    .replace(/aa/g,"a").replace(/ee/g,"e").replace(/ii/g,"i");
+}
+function scoreText(txt){
+  if(/[\u3040-\u30ff\u4e00-\u9faf]/.test(txt))return best([txt],cur.accept);
+  const a=normRomaji(txt),b=normRomaji(cur.romaji);
+  if(!a)return 0;
+  const L=Math.max(a.length,b.length);
+  return L?1-lev(a,b)/L:0;
+}
+function buildDeck(){
+  const pool=W.filter(w=>selected.has(w.cat));
+  const weighted=[];
+  pool.forEach(w=>{const b=prog.box[w.id]||0;const n=b>=SEUIL?1:(SEUIL+1-b);for(let i=0;i<n;i++)weighted.push(w);});
+  const seen=new Set();deck=[];
+  weighted.sort(()=>Math.random()-.5).forEach(w=>{if(!seen.has(w.id)){seen.add(w.id);deck.push(w);}});
+  deck=deck.slice(0,20);idx=0;
+}
+function show(){
+  if(idx>=deck.length){endSession();return;}
+  cur=deck[idx];revealed=false;
+  $("seal").textContent=CATS[cur.cat].kanji;
+  $("emoji").textContent=cur.emoji;
+  $("fr").textContent=cur.fr;
+  $("hint").textContent=(prog.box[cur.id]||0)>=SEUIL?"déjà acquis — révision":"";
+  $("answer").innerHTML='<p class="veil">Dis-le en japonais à voix haute.</p>';
+  setStatus(mode==="self"?"Puis révèle la réponse et juge.":"","");
+  $("barFill").style.width=(idx/deck.length*100)+"%";
+  $("selfRow").classList.toggle("hidden",mode!=="self");
+  $("mic").classList.toggle("hidden",mode!=="mic");
+  $("kbdRow").classList.toggle("hidden",mode!=="kbd");
+  $("kbdInput").value="";
+}
+function revealAnswer(){
+  revealed=true;
+  $("answer").innerHTML=`<p class="ja">${cur.ja}</p><p class="romaji">${cur.romaji}</p>`;
+  speak(cur.ja);
+}
+function setStatus(txt,cls){const s=$("status");s.className="status "+(cls||"");s.innerHTML=txt;}
+function scoreCard(ok){
+  const b=prog.box[cur.id]||0;
+  prog.box[cur.id]=ok?Math.min(SEUIL,b+1):0;
+  prog.streak=ok?(prog.streak||0)+1:0;
+  save();paintScore();
+}
+function next(delay){
+  setTimeout(()=>{idx++;show();},delay||0);
+}
+function endSession(){
+  $("barFill").style.width="100%";
+  $("answer").innerHTML="";
+  $("emoji").textContent="🍵";
+  $("fr").textContent="Série terminée";
+  $("hint").textContent="お疲れさま — repose-toi ou relance un tour.";
+  $("seal").textContent="了";
+  setStatus("","");
+  $("mic").classList.add("hidden");
+  $("selfRow").classList.add("hidden");
+  paintCats();
+}
+
+/* ---------------- écouteurs ---------------- */
+$("start").onclick=()=>{
+  if(!selected.size){alert("Choisis au moins une situation.");return;}
+  buildDeck();
+  $("home").classList.add("hidden");$("drills").classList.add("hidden");
+  $("practice").classList.remove("hidden");
+  show();
+};
+function checkTyped(){
+  const txt=$("kbdInput").value.trim();
+  if(!txt){setStatus("Dicte ou tape le mot avant de vérifier.","");return;}
+  const s=scoreText(txt);
+  if(s>=.8){
+    revealAnswer();scoreCard(true);setStatus("C'est ça.","good");next(1400);
+  }else if(s>=.55){
+    setStatus("Presque — écoute le modèle et redis-le.","near");speak(cur.ja);
+  }else{
+    setStatus("Pas encore. Réessaie, ou montre la réponse.","");
+  }
+}
+$("kbdCheck").onclick=checkTyped;
+$("kbdInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkTyped();});
+$("quit").onclick=()=>{
+  if(listening&&rec)rec.stop();
+  $("practice").classList.add("hidden");$("home").classList.remove("hidden");
+  paintCats();
+};
+$("skip").onclick=()=>next();
+$("reveal").onclick=()=>{if(cur)revealAnswer();};
+$("listen").onclick=()=>{if(cur)speak(cur.ja);};
+$("selfOk").onclick=()=>{if(!revealed)revealAnswer();scoreCard(true);setStatus("Bien joué.","good");next(700);};
+$("selfNo").onclick=()=>{if(!revealed)revealAnswer();scoreCard(false);setStatus("On la reverra tout à l'heure.","");next(900);};
+
+$("mic").onclick=()=>{
+  if(!SR){showWarn("nosr");return;}
+  if(micBlocked){showWarn(location.protocol==="file:"?"file":"blocked");return;}
+  if(listening){rec&&rec.stop();return;}
+  rec=rec||initRec(handleHeard,()=>$("mic").classList.remove("live"));
+  try{
+    listening=true;$("mic").classList.add("live");
+    setStatus("J'écoute…","");
+    rec.start();
+  }catch(e){listening=false;$("mic").classList.remove("live");}
+};
+function handleHeard(alts){
+  const s=best(alts,cur.accept);
+  const heard=`<span class="heard">${alts[0]}</span>`;
+  if(s>=.82){
+    revealAnswer();scoreCard(true);
+    setStatus("Compris — "+heard,"good");
+    next(1400);
+  }else if(s>=.55){
+    setStatus("Presque : j'ai entendu "+heard+". Écoute le modèle et réessaie.","near");
+    speak(cur.ja);
+  }else{
+    setStatus("J'ai entendu "+heard+". Réessaie, ou montre la réponse.","");
+  }
+}
+
+/* drills */
+$("goDrills").onclick=()=>{
+  $("home").classList.add("hidden");$("drills").classList.remove("hidden");
+};
+$("quitDrills").onclick=()=>{
+  $("drills").classList.add("hidden");$("home").classList.remove("hidden");
+};
+function paintDrills(){
+  $("drillList").innerHTML="";
+  DRILLS.forEach((d,i)=>{
+    const el=document.createElement("div");
+    el.className="drill";
+    el.innerHTML=`<h3>${d.t}</h3><p>${d.d}</p><p class="ex">${d.ex}</p>`;
+    const row=document.createElement("div");row.className="row";row.style.margin="0";
+    const b1=document.createElement("button");b1.className="act ghost";b1.textContent="Écouter";
+    b1.onclick=()=>speak(d.say);
+    const b2=document.createElement("button");b2.className="act ghost";b2.textContent="Me tester";
+    const fb=document.createElement("span");fb.style.fontSize="14px";fb.style.color="var(--ink-soft)";
+    b2.onclick=()=>{
+      if(!SR){fb.textContent="Reconnaissance vocale indisponible ici.";return;}
+      const r=initRec(alts=>{
+        const s=best(alts,[d.say]);
+        fb.textContent=s>=.8?"Compris ✓":"Entendu : "+alts[0]+" — réessaie";
+        fb.style.color=s>=.8?"var(--ok)":"var(--ink-soft)";
+      },()=>{b2.textContent="Me tester";});
+      if(!r)return;
+      b2.textContent="J'écoute…";fb.textContent="";
+      try{r.start();}catch(e){}
+    };
+    row.append(b1,b2,fb);el.appendChild(row);
+    $("drillList").appendChild(el);
+  });
+}
+
+/* mots personnels */
+function paintPerso(){
+  const sel=$("aCat");
+  if(!sel.options.length){
+    Object.entries(CATS).forEach(([k,c])=>{
+      const o=document.createElement("option");o.value=k;o.textContent=c.label;sel.appendChild(o);
+    });
+  }
+  const ul=$("aList");ul.innerHTML="";
+  PERSO.forEach((m,i)=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<span>${m.emoji||"📝"} ${m.fr} — <span class="jp">${m.ja}</span></span>`;
+    const b=document.createElement("button");b.textContent="×";b.title="Supprimer";
+    b.onclick=async()=>{PERSO.splice(i,1);await savePerso();paintPerso();paintCats();};
+    li.appendChild(b);ul.appendChild(li);
+  });
+}
+function msg(t,ok){const p=$("aMsg");p.textContent=t;p.className=ok?"ok":"";}
+$("aAdd").onclick=async()=>{
+  const m={cat:$("aCat").value,emoji:$("aEmoji").value.trim(),
+    fr:$("aFr").value.trim(),ja:$("aJa").value.trim(),romaji:$("aRomaji").value.trim()};
+  if(!m.fr||!m.ja){msg("Il faut au minimum le français et le japonais.");return;}
+  if(!/[\u3040-\u30ff\u4e00-\u9faf]/.test(m.ja)){msg("Le champ japonais doit contenir des kana ou des kanji.");return;}
+  PERSO.push(m);await savePerso();
+  ["aEmoji","aFr","aJa","aRomaji"].forEach(id=>$(id).value="");
+  msg("Ajouté. Le mot apparaît dès la prochaine série.",true);
+  paintPerso();paintCats();
+};
+$("aExport").onclick=async()=>{
+  if(!PERSO.length){msg("Aucun mot personnel pour l'instant.");return;}
+  const lignes=PERSO.map(m=>`  [${JSON.stringify(m.cat)},${JSON.stringify(m.emoji||"📝")},${JSON.stringify(m.fr)},${JSON.stringify(m.ja)},${JSON.stringify(m.romaji)}],`).join("\n");
+  let ta=$("aTa");
+  if(!ta){ta=document.createElement("textarea");ta.id="aTa";ta.readOnly=true;$("aList").before(ta);}
+  ta.value=lignes;ta.select();
+  try{await navigator.clipboard.writeText(lignes);msg("Copié. À coller dans mots.js sur GitHub.",true);}
+  catch(e){msg("Sélectionne le texte ci-dessus et copie-le, puis colle-le dans mots.js.");}
+};
+
+/* ================= KANA : tableaux et exercices ================= */
+let kview="menu", kscript="hira", klevel=1, kdeck=[], kidx=0, kbonnes=0, kverrou=false;
+
+function kcle(sc,niv,item){return sc+niv+":"+item;}
+function kbox(c){return (prog.kana&&prog.kana[c])||0;}
+function kscore(c,ok){
+  prog.kana=prog.kana||{};
+  const b=kbox(c);
+  prog.kana[c]=ok?Math.min(2,b+1):0;
+  save();
+}
+function kacquis(sc,niv,liste){
+  return liste.filter(x=>kbox(kcle(sc,niv,Array.isArray(x)?x[0]:x))>=2).length;
+}
+function kliste(sc,niv){
+  const K=KANA[sc];
+  if(niv===1)return K.base.concat(K.dakuten);
+  return niv===2?K.niveau2:K.niveau3;
+}
+
+function kshow(v){kview=v;krender();}
+function kopen(){
+  $("home").classList.add("hidden");$("practice").classList.add("hidden");
+  $("drills").classList.add("hidden");$("kana").classList.remove("hidden");
+  kshow("menu");
+}
+$("goKana").onclick=kopen;
+$("kanaBack").onclick=()=>{
+  if(kview==="quiz"){kshow("niveaux");return;}
+  if(kview==="table"||kview==="niveaux"){kshow("menu");return;}
+  $("kana").classList.add("hidden");$("home").classList.remove("hidden");paintCats();
+};
+
+function krender(){
+  const b=$("kanabody");b.innerHTML="";
+  if(kview==="menu")return kmenu(b);
+  if(kview==="table")return ktable(b);
+  if(kview==="niveaux")return kniveaux(b);
+  if(kview==="quiz")return kquestion(b);
+}
+
+/* --- menu principal --- */
+function kmenu(b){
+  const h=document.createElement("div");
+  h.innerHTML='<h2 class="ktitle">Hiragana & katakana</h2><p class="ksub">Les tableaux pour écouter et réviser, les exercices pour vérifier que ça rentre.</p>';
+  b.appendChild(h);
+  const g=document.createElement("div");g.className="kmenu";
+  const entrees=[
+    ["Tableau des hiragana","ひらがな","46 syllabes de base + 25 avec accents. Appuie sur une case pour l'entendre.",()=>{kscript="hira";kshow("table");}],
+    ["Exercices hiragana","ひらがな","Trois niveaux, de la syllabe seule aux mots de quatre kana.",()=>{kscript="hira";kshow("niveaux");}],
+    ["Tableau des katakana","カタカナ","L'écriture des mots étrangers : menus, enseignes, transports.",()=>{kscript="kata";kshow("table");}],
+    ["Exercices katakana","カタカナ","Mêmes trois niveaux, avec des mots empruntés au français et à l'anglais.",()=>{kscript="kata";kshow("niveaux");}]
+  ];
+  entrees.forEach(([t,kj,d,fn])=>{
+    const btn=document.createElement("button");
+    btn.innerHTML=`<span class="kj">${kj}</span>${t}<small>${d}</small>`;
+    btn.onclick=fn;g.appendChild(btn);
+  });
+  b.appendChild(g);
+}
+
+/* --- tableau --- */
+function ktable(b){
+  const K=KANA[kscript];
+  const h=document.createElement("div");
+  h.innerHTML=`<h2 class="ktitle">Tableau des ${K.nom.toLowerCase()}</h2><p class="ksub">Appuie sur une case pour entendre la prononciation.</p>`;
+  b.appendChild(h);
+  const bloc=(titre,liste,parRang)=>{
+    const t=document.createElement("p");
+    t.style.cssText="font-weight:600;margin:16px 0 8px;font-size:16px";t.textContent=titre;
+    b.appendChild(t);
+    const g=document.createElement("div");g.className="kgrid";
+    // completer les rangees incompletes (ya/yu/yo, wa/wo/n)
+    liste.forEach(([c,r])=>{
+      const cell=document.createElement("button");
+      cell.className="kcell";
+      cell.innerHTML=`<span class="c">${c}</span><span class="r">${r}</span>`;
+      cell.onclick=()=>{
+        speak(c);
+        document.querySelectorAll(".kcell.on").forEach(e=>e.classList.remove("on"));
+        cell.classList.add("on");
+      };
+      g.appendChild(cell);
+    });
+    b.appendChild(g);
+  };
+  bloc("Syllabes de base",K.base);
+  bloc("Avec accents (dakuten et handakuten)",K.dakuten);
+}
+
+/* --- choix du niveau --- */
+function kniveaux(b){
+  const K=KANA[kscript];
+  const h=document.createElement("div");
+  h.innerHTML=`<h2 class="ktitle">Exercices ${K.nom.toLowerCase()}</h2><p class="ksub">Le kana ou le mot s'affiche, tu choisis la bonne lecture parmi quatre propositions.</p>`;
+  b.appendChild(h);
+  const g=document.createElement("div");g.className="kmenu";
+  [[1,"Niveau 1 — une syllabe","Les 71 kana un par un. La base de tout."],
+   [2,"Niveau 2 — mots de deux kana","Des mots courants très courts."],
+   [3,"Niveau 3 — mots de trois ou quatre kana","Lecture enchaînée, petits sons difficiles inclus."]
+  ].forEach(([n,t,d])=>{
+    const l=kliste(kscript,n);
+    const fait=kacquis(kscript,n,l);
+    const btn=document.createElement("button");
+    btn.innerHTML=`${t}<small>${d}</small><small>${fait} / ${l.length} acquis</small>`;
+    btn.onclick=()=>{klevel=n;kstart();};
+    g.appendChild(btn);
+  });
+  b.appendChild(g);
+}
+
+/* --- quiz --- */
+function kstart(){
+  const liste=kliste(kscript,klevel);
+  const pond=[];
+  liste.forEach(x=>{
+    const c=kcle(kscript,klevel,Array.isArray(x)?x[0]:x);
+    const n=kbox(c)>=2?1:3;
+    for(let i=0;i<n;i++)pond.push(x);
+  });
+  const vus=new Set();kdeck=[];
+  pond.sort(()=>Math.random()-.5).forEach(x=>{
+    const k=x[0];if(!vus.has(k)){vus.add(k);kdeck.push(x);}
+  });
+  kdeck=kdeck.slice(0,12);kidx=0;kbonnes=0;kshow("quiz");
+}
+
+function kquestion(b){
+  if(kidx>=kdeck.length)return kfin(b);
+  kverrou=false;
+  const item=kdeck[kidx];
+  const [signe,lecture,sens]=[item[0],item[1],item[2]||""];
+  const liste=kliste(kscript,klevel);
+
+  const prog_=document.createElement("p");
+  prog_.className="ksub";prog_.style.margin="0 0 10px";
+  prog_.textContent=`Question ${kidx+1} sur ${kdeck.length} — ${kbonnes} bonne${kbonnes>1?"s":""} réponse${kbonnes>1?"s":""}`;
+  b.appendChild(prog_);
+
+  const carte=document.createElement("div");
+  carte.className="kq";
+  carte.innerHTML=`<p class="big">${signe}</p><p class="sens" id="ksens"></p>`;
+  b.appendChild(carte);
+
+  const autres=liste.filter(x=>x[1]!==lecture).map(x=>x[1]);
+  const choix=[lecture];
+  while(choix.length<4&&autres.length){
+    const c=autres.splice(Math.floor(Math.random()*autres.length),1)[0];
+    if(!choix.includes(c))choix.push(c);
+  }
+  choix.sort(()=>Math.random()-.5);
+
+  const g=document.createElement("div");g.className="opts";
+  choix.forEach(c=>{
+    const btn=document.createElement("button");
+    btn.textContent=c;
+    btn.onclick=()=>{
+      if(kverrou)return;kverrou=true;
+      const ok=(c===lecture);
+      speak(signe);
+      kscore(kcle(kscript,klevel,signe),ok);
+      if(ok)kbonnes++;
+      g.querySelectorAll("button").forEach(x=>{
+        if(x.textContent===lecture)x.classList.add("bon");
+        else if(x===btn)x.classList.add("faux");
+        x.disabled=true;
+      });
+      $("ksens").textContent = sens ? `${lecture} — ${sens}` : lecture;
+      setTimeout(()=>{kidx++;krender();}, ok?900:1800);
+    };
+    g.appendChild(btn);
+  });
+  b.appendChild(g);
+}
+
+function kfin(b){
+  const liste=kliste(kscript,klevel);
+  const fait=kacquis(kscript,klevel,liste);
+  const h=document.createElement("div");
+  h.innerHTML=`<h2 class="ktitle">Série terminée</h2>
+    <p class="ksub">${kbonnes} bonnes réponses sur ${kdeck.length}. Au total : ${fait} sur ${liste.length} acquis à ce niveau.</p>`;
+  b.appendChild(h);
+  const g=document.createElement("div");g.className="kmenu";
+  const r=document.createElement("button");r.innerHTML="Refaire une série";r.onclick=kstart;
+  const n=document.createElement("button");n.innerHTML="Changer de niveau";n.onclick=()=>kshow("niveaux");
+  g.append(r,n);b.appendChild(g);
+}
+
+/* PWA : installation + hors connexion */
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();deferredPrompt=e;$("install").classList.remove("hidden");
+});
+$("install").onclick=async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;$("install").classList.add("hidden");
+};
+window.addEventListener("appinstalled",()=>$("install").classList.add("hidden"));
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+
+/* init */
+(async()=>{
+  await load();await loadPerso();
+  paintCats();paintDrills();paintModes();paintPerso();
+  if(!canMic)showWarn("kbd");
+})();
+</script>
