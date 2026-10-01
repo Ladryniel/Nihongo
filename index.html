@@ -45,19 +45,22 @@
   .hidden{display:none}
 
   /* --- grandes tuiles d'accueil --- */
-  .tiles{display:grid;gap:12px;margin-bottom:14px}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
   .tile{
-    border:none;border-radius:var(--r);padding:20px 18px;cursor:pointer;text-align:left;
-    font-family:inherit;display:flex;align-items:center;gap:16px;width:100%;
-    box-shadow:0 2px 10px rgba(44,51,39,.06);
+    border:none;border-radius:var(--r);padding:18px 15px;cursor:pointer;text-align:left;
+    font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%;
+    aspect-ratio:1/1;justify-content:flex-start;box-shadow:0 2px 10px rgba(44,51,39,.06);
   }
   .tile .ic{
-    width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;
-    font-family:var(--jp);font-size:28px;font-weight:700;flex:0 0 auto;
+    width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--jp);font-size:24px;font-weight:700;flex:0 0 auto;
   }
-  .tile .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
-  .tile .tt{font-size:18px;font-weight:700;color:var(--ink)}
-  .tile .td{font-size:13.5px;color:var(--ink-soft);font-weight:500;line-height:1.35}
+  .tile .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .tile .tt{font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .tile .td{font-size:12.5px;color:var(--ink-soft);font-weight:500;line-height:1.3}
+  .tile.t4{background:var(--card)}
+  .tile.t4 .ic{background:var(--bg);color:var(--matcha-d)}
+  @media (max-width:340px){.tile{aspect-ratio:auto}}
   .tile.t1{background:var(--matcha-l)}
   .tile.t1 .ic{background:var(--matcha);color:#fff}
   .tile.t2{background:var(--rose-l)}
@@ -201,6 +204,22 @@
   .drill p{margin:0 0 10px;color:var(--ink-soft);font-size:14.5px;max-width:56ch}
   .drill .ex{font-family:var(--jp);font-size:21px;margin:0 0 10px;font-weight:600}
   .drill .ex em{font-style:normal;color:var(--rose-d)}
+  .ponglets{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 14px}
+  .pong{font-family:inherit;font-size:14px;font-weight:600;padding:8px 13px;border-radius:999px;cursor:pointer;
+    background:var(--card);border:1.5px solid var(--line);color:var(--ink-soft);display:flex;gap:6px;align-items:center}
+  .pong span{font-size:12px;background:var(--bg);border-radius:99px;padding:1px 7px}
+  .pong.on{border-color:var(--matcha);background:var(--matcha-l);color:var(--matcha-d)}
+  .pong.on span{background:#fff}
+  .pmot{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:8px;
+    display:flex;gap:12px;align-items:flex-start;box-shadow:0 1px 6px rgba(44,51,39,.05)}
+  .pmot .pe{font-size:26px;line-height:1.1;flex:0 0 auto}
+  .pmot .pc{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+  .pmot .pfr{font-weight:700;font-size:15.5px}
+  .pmot .pja{font-family:var(--jp);font-size:17px;color:var(--ink)}
+  .pmot .prom{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft)}
+  .pmot .pmeta{font-size:12.5px;color:var(--ink-soft)}
+  .pmot .pecoute{background:var(--matcha-l);border:none;color:var(--matcha-d);border-radius:50%;
+    width:34px;height:34px;font-size:15px;cursor:pointer;flex:0 0 auto;font-family:inherit}
   details.addbox{background:var(--card);border-radius:var(--r);padding:14px 16px;margin:16px 0 0;
     box-shadow:0 2px 10px rgba(44,51,39,.05)}
   details.addbox summary{cursor:pointer;font-size:16px;font-weight:700;list-style:none}
@@ -246,10 +265,15 @@
         <span class="tx"><span class="tt">Vocabulaire de voyage</span>
         <span class="td">Une image, un mot à dire à voix haute. 11 situations.</span></span>
       </button>
-      <button class="tile t3" id="goDrills">
-        <span class="ic">🗣️</span>
+      <button class="tile t3" id="goProgres">
+        <span class="ic">結</span>
+        <span class="tx"><span class="tt">Ma progression</span>
+        <span class="td">Ce qui est acquis, ce qui résiste.</span></span>
+      </button>
+      <button class="tile t4" id="goDrills">
+        <span class="ic">口</span>
         <span class="tx"><span class="tt">Prononciation</span>
-        <span class="td">Les six sons qui font trébucher les francophones.</span></span>
+        <span class="td">Les sons qui piègent les francophones.</span></span>
       </button>
     </div>
     <div class="row" style="margin-top:14px">
@@ -297,6 +321,15 @@
         <span class="cnt" id="startCnt"></span>
       </div>
     </div>
+  </section>
+
+  <!-- PROGRESSION -->
+  <section id="progres" class="hidden">
+    <h2 class="ktitle">Ma progression</h2>
+    <p class="ksub" id="pResume"></p>
+    <div class="ponglets" id="pOnglets"></div>
+    <div id="pListe"></div>
+    <div class="row" style="margin-top:16px"><button class="act ghost" id="progresBack">Retour</button></div>
   </section>
 
   <!-- ENTRAÎNEMENT -->
@@ -484,7 +517,7 @@ function showWarn(kind){
 }
 
 /* ---------------- navigation ---------------- */
-const ECRANS=["home","vocab","practice","kana","drills"];
+const ECRANS=["home","vocab","practice","kana","drills","progres"];
 function montrer(id){
   ECRANS.forEach(e=>$(e).classList.toggle("hidden",e!==id));
   window.scrollTo(0,0);
@@ -504,7 +537,8 @@ function retourLogique(){
     if(kview==="table"||kview==="niveaux"){kvue("menu");return;}
     montrer("home");return;
   }
-  if(!$("vocab").classList.contains("hidden")||!$("drills").classList.contains("hidden")){
+  if(!$("vocab").classList.contains("hidden")||!$("drills").classList.contains("hidden")
+     ||!$("progres").classList.contains("hidden")){
     montrer("home");return;
   }
 }
@@ -604,6 +638,10 @@ function revealAnswer(){
 }
 function setStatus(txt,cls){const s=$("status");s.className="status "+(cls||"");s.innerHTML=txt;}
 function scoreCard(ok){
+  prog.stats=prog.stats||{};
+  const st=prog.stats[cur.id]||{v:0,e:0};
+  st.v++; if(!ok)st.e++;
+  prog.stats[cur.id]=st;
   const b=prog.box[cur.id]||0;
   prog.box[cur.id]=ok?Math.min(SEUIL,b+1):0;
   prog.streak=ok?(prog.streak||0)+1:0;
@@ -708,6 +746,64 @@ function paintDrills(){
     $("drillList").appendChild(el);
   });
 }
+
+/* ---------------- ma progression ---------------- */
+let pOnglet="rates";
+function pstat(id){return (prog.stats&&prog.stats[id])||{v:0,e:0};}
+function paintProgres(){
+  const acquis=[],rates=[],encours=[],jamais=[];
+  W.forEach(w=>{
+    const b=prog.box[w.id]||0, st=pstat(w.id);
+    if(b>=SEUIL)acquis.push(w);
+    else if(st.v===0)jamais.push(w);
+    else if(st.e>0)rates.push(w);
+    else encours.push(w);
+  });
+  rates.sort((a,b)=>pstat(b.id).e-pstat(a.id).e);
+  $("pResume").innerHTML=
+    `<b>${acquis.length}</b> acquis · <b>${rates.length}</b> à retravailler · `
+    +`<b>${encours.length}</b> en cours · <b>${jamais.length}</b> jamais vus, sur ${W.length} cartes.`;
+
+  const onglets=[["rates","À retravailler",rates],["acquis","Acquis",acquis],
+                 ["encours","En cours",encours],["jamais","Jamais vus",jamais]];
+  const o=$("pOnglets");o.innerHTML="";
+  onglets.forEach(([id,label,liste])=>{
+    const b=document.createElement("button");
+    b.className="pong"+(pOnglet===id?" on":"");
+    b.innerHTML=`${label}<span>${liste.length}</span>`;
+    b.onclick=()=>{pOnglet=id;paintProgres();};
+    o.appendChild(b);
+  });
+
+  const liste=(onglets.find(x=>x[0]===pOnglet)||onglets[0])[2];
+  const h=$("pListe");h.innerHTML="";
+  if(!liste.length){
+    h.innerHTML='<p class="ksub">Rien ici pour le moment.</p>';return;
+  }
+  liste.slice(0,120).forEach(w=>{
+    const st=pstat(w.id), b=prog.box[w.id]||0;
+    const el=document.createElement("div");
+    el.className="pmot";
+    const compteur = st.v ? `${st.e} erreur${st.e>1?"s":""} sur ${st.v} passage${st.v>1?"s":""}`
+                          : "jamais proposé";
+    el.innerHTML=`
+      <span class="pe">${w.emoji}</span>
+      <span class="pc">
+        <span class="pfr">${w.fr}</span>
+        <span class="pja">${w.ja} <span class="prom">${w.romaji}</span></span>
+        <span class="pmeta">${compteur} · ${b}/${SEUIL} vers l'acquisition · ${CATS[w.cat]?CATS[w.cat].label:""}</span>
+      </span>
+      <button class="pecoute" title="Écouter">♪</button>`;
+    el.querySelector(".pecoute").onclick=()=>speak(w.ja);
+    h.appendChild(el);
+  });
+  if(liste.length>120){
+    const p=document.createElement("p");p.className="ksub";
+    p.textContent=`… et ${liste.length-120} autres.`;h.appendChild(p);
+  }
+}
+$("goProgres").onclick=()=>{ecran("progres");paintProgres();};
+$("progresBack").onclick=()=>history.back();
 
 /* mots personnels */
 function paintPerso(){

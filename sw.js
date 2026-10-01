@@ -1,4 +1,4 @@
-const CACHE = "nihongo-v6";
+const CACHE = "nihongo-v7";
 const FILES = [
   "./",
   "./index.html",

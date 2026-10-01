@@ -20,6 +20,7 @@
 
 const RUBRIQUES = {
   politesse:{label:"Politesse", kanji:"礼"},
+  conv:{label:"Conversation", kanji:"話"},
   transport:{label:"Transports", kanji:"駅"},
   direction:{label:"Se repérer", kanji:"道"},
   resto:{label:"Au restaurant", kanji:"食"},
@@ -64,7 +65,27 @@ const MOTS = [
   ["politesse","😊","C'était très agréable","楽しかったです","tanoshikatta desu",["たのしかったです"]],
   ["politesse","🔜","Je reviendrai","また来ます","mata kimasu",["またきます"]],
 
-  /* ---------- TRANSPORTS (27) ---------- */
+  /* ---------- CONVERSATION (18) ---------- */
+  ["conv","🙋‍♀️","Enchantée, merci d'avance","よろしくお願いします","yoroshiku onegaishimasu",["よろしくおねがいします"]],
+  ["conv","😊","Comment allez-vous ?","お元気ですか","o-genki desu ka",["おげんきですか"]],
+  ["conv","👍","Je vais bien","元気です","genki desu",["げんきです"]],
+  ["conv","🌍","D'où venez-vous ?","どこから来ましたか","doko kara kimashita ka",["どこからきましたか"]],
+  ["conv","🆕","C'est ma première fois au Japon","日本は初めてです","nihon wa hajimete desu",["にほんははじめてです"]],
+  ["conv","🎉","C'est vraiment agréable","とても楽しいです","totemo tanoshii desu",["とてもたのしいです"]],
+  ["conv","✨","C'est magnifique","素敵ですね","suteki desu ne",["すてきですね"]],
+  ["conv","🤓","C'est intéressant","面白いですね","omoshiroi desu ne",["おもしろいですね"]],
+  ["conv","👂","Ah bon ?","そうですか","sō desu ka",["そうですか"]],
+  ["conv","👌","C'est bien, ça","いいですね","ii desu ne"],
+  ["conv","🚶‍♀️","On y va ensemble ?","一緒に行きませんか","issho ni ikimasen ka",["いっしょにいきませんか"]],
+  ["conv","🙏","Merci pour tout","お世話になりました","osewa ni narimashita",["おせわになりました"]],
+  ["conv","👋","À bientôt","また会いましょう","mata aimashō",["またあいましょう"]],
+  ["conv","🗣️","Je ne parle pas japonais","日本語が話せません","nihongo ga hanasemasen",["にほんごがはなせません"]],
+  ["conv","📖","Ça se lit comment ?","これは何と読みますか","kore wa nan to yomimasu ka",["これはなんとよみますか"]],
+  ["conv","✍️","Pouvez-vous l'écrire ?","書いてください","kaite kudasai",["かいてください"]],
+  ["conv","📱","J'utilise une appli de traduction","翻訳アプリを使います","honyaku apuri o tsukaimasu",["ほんやくあぷりをつかいます"]],
+  ["conv","📸","Pouvez-vous nous prendre en photo ?","写真を撮ってもらえますか","shashin o totte moraemasu ka",["しゃしんをとってもらえますか"]],
+
+  /* ---------- TRANSPORTS (34) ---------- */
   ["transport","🚉","La gare","駅","eki",["えき"]],
   ["transport","🚃","Le train","電車","densha",["でんしゃ"]],
   ["transport","🚄","Le shinkansen","新幹線","shinkansen",["しんかんせん"]],
@@ -92,6 +113,13 @@ const MOTS = [
   ["transport","🕒","Les horaires","時刻表","jikokuhyō",["じこくひょう"]],
   ["transport","😣","C'est bondé","満員です","man'in desu",["まんいんです"]],
   ["transport","🛑","Je descends ici","ここで降ります","koko de orimasu",["ここでおります"]],
+  ["transport","🚅","Ce train va-t-il à Tokyo ?","この電車は東京に行きますか","kono densha wa tōkyō ni ikimasu ka",["このでんしゃはとうきょうにいきますか"]],
+  ["transport","⏳","Est-ce que j'ai le temps ?","間に合いますか","ma ni aimasu ka",["まにあいますか"]],
+  ["transport","🏃‍♀️","Je suis pressée","急いでいます","isoide imasu",["いそいでいます"]],
+  ["transport","💺","Où est ma place ?","席はどこですか","seki wa doko desu ka",["せきはどこですか"]],
+  ["transport","📋","Faut-il réserver ?","予約が必要ですか","yoyaku ga hitsuyō desu ka",["よやくがひつようですか"]],
+  ["transport","🎟️","Le forfait d'une journée","一日乗車券","ichinichi jōshaken",["いちにちじょうしゃけん"]],
+  ["transport","💳","Je voudrais recharger ma carte","チャージしたいです","chāji shitai desu",["ちゃーじしたいです"]],
 
   /* ---------- SE REPÉRER (12) ---------- */
   ["direction","🗺️","C'est où ?","どこですか","doko desu ka"],
@@ -107,7 +135,7 @@ const MOTS = [
   ["direction","🧭","Je suis perdue","道に迷いました","michi ni mayoimashita",["みちにまよいました"]],
   ["direction","🗾","Une carte, s'il vous plaît","地図をください","chizu o kudasai",["ちずをください"]],
 
-  /* ---------- AU RESTAURANT (33) ---------- */
+  /* ---------- AU RESTAURANT (40) ---------- */
   ["resto","📖","Le menu, s'il vous plaît","メニューをお願いします","menyū o onegaishimasu",["めにゅーをおねがいします"]],
   ["resto","1️⃣","Une personne","一人です","hitori desu",["ひとりです"]],
   ["resto","2️⃣","Deux personnes","二人です","futari desu",["ふたりです"]],
@@ -141,8 +169,15 @@ const MOTS = [
   ["resto","🍽️","Vous avez une table ?","席はありますか","seki wa arimasu ka",["せきはありますか"]],
   ["resto","❌","Je n'ai pas réservé","予約していません","yoyaku shite imasen",["よやくしていません"]],
   ["resto","➕","Je peux en reprendre ?","おかわりできますか","okawari dekimasu ka"],
+  ["resto","🙋","Je voudrais commander","注文お願いします","chūmon onegaishimasu",["ちゅうもんおねがいします"]],
+  ["resto","🤔","Je n'ai pas encore choisi","まだ決まっていません","mada kimatte imasen",["まだきまっていません"]],
+  ["resto","🚫🐷","Sans porc, s'il vous plaît","豚肉抜きでお願いします","butaniku nuki de onegaishimasu",["ぶたにくぬきでおねがいします"]],
+  ["resto","🥄","Une petite portion, s'il vous plaît","少なめでお願いします","sukuname de onegaishimasu",["すくなめでおねがいします"]],
+  ["resto","💴","Vous prenez seulement les espèces ?","現金のみですか","genkin nomi desu ka",["げんきんのみですか"]],
+  ["resto","🙌","J'ai très bien mangé","おなかがいっぱいです","onaka ga ippai desu"],
+  ["resto","❔","Combien de personnes ? (on vous le demande)","何名ですか","nanmei desu ka",["なんめいですか"]],
 
-  /* ---------- ACHATS (16) ---------- */
+  /* ---------- ACHATS (20) ---------- */
   ["achats","💴","C'est combien ?","いくらですか","ikura desu ka"],
   ["achats","💳","Je peux payer par carte ?","カードで払えますか","kādo de haraemasu ka",["かーどではらえますか"]],
   ["achats","💵","Les espèces","現金","genkin",["げんきん"]],
@@ -159,8 +194,12 @@ const MOTS = [
   ["achats","🔖","Il y a une réduction ?","割引はありますか","waribiki wa arimasu ka",["わりびきはありますか"]],
   ["achats","🐘","C'est grand","大きいです","ōkii desu",["おおきいです"]],
   ["achats","🐁","C'est petit","小さいです","chiisai desu",["ちいさいです"]],
+  ["achats","🎀","C'est pour offrir","プレゼント用にお願いします","purezento-yō ni onegaishimasu",["ぷれぜんとようにおねがいします"]],
+  ["achats","🎨","Vous avez une autre couleur ?","他の色はありますか","hoka no iro wa arimasu ka",["ほかのいろはありますか"]],
+  ["achats","📦","Vous en avez en stock ?","在庫はありますか","zaiko wa arimasu ka",["ざいこはありますか"]],
+  ["achats","↩️","Puis-je faire un échange ?","返品できますか","henpin dekimasu ka",["へんぴんできますか"]],
 
-  /* ---------- HÔTEL & BAINS (18) ---------- */
+  /* ---------- HÔTEL & BAINS (23) ---------- */
   ["hotel","🏨","L'hôtel","ホテル","hoteru"],
   ["hotel","📝","J'ai une réservation","予約しています","yoyaku shite imasu",["よやくしています"]],
   ["hotel","🚪","La chambre","部屋","heya",["へや"]],
@@ -179,8 +218,13 @@ const MOTS = [
   ["hotel","🛏️","Le futon","布団","futon",["ふとん"]],
   ["hotel","👘","Le yukata","浴衣","yukata",["ゆかた"]],
   ["hotel","🧹","Vous pouvez faire le ménage ?","掃除してください","sōji shite kudasai",["そうじしてください"]],
+  ["hotel","🌙","Puis-je rester une nuit de plus ?","もう一泊できますか","mō ippaku dekimasu ka",["もういっぱくできますか"]],
+  ["hotel","🕘","Je rentrerai tard","遅くなります","osoku narimasu",["おそくなります"]],
+  ["hotel","🔓","J'ai perdu ma clé","鍵をなくしました","kagi o nakushimashita",["かぎをなくしました"]],
+  ["hotel","🔁","Pourriez-vous changer ma chambre ?","部屋を変えてもらえますか","heya o kaete moraemasu ka",["へやをかえてもらえますか"]],
+  ["hotel","🥐","Le petit-déjeuner est-il compris ?","朝食付きですか","chōshoku tsuki desu ka",["ちょうしょくつきですか"]],
 
-  /* ---------- SERVICES PRATIQUES (13) ---------- */
+  /* ---------- SERVICES PRATIQUES (16) ---------- */
   ["services","📮","La poste","郵便局","yūbinkyoku",["ゆうびんきょく"]],
   ["services","🏧","Où y a-t-il un distributeur ?","ATMはどこですか","ATM wa doko desu ka",["えーてぃーえむはどこですか"]],
   ["services","💱","Je peux changer de l'argent ?","両替できますか","ryōgae dekimasu ka",["りょうがえできますか"]],
@@ -194,8 +238,11 @@ const MOTS = [
   ["services","🤝","Vous pouvez m'aider ?","手伝ってもらえますか","tetsudatte moraemasu ka",["てつだってもらえますか"]],
   ["services","☂️","Le parapluie","傘","kasa",["かさ"]],
   ["services","🚭","L'espace fumeurs","喫煙所","kitsuenjo",["きつえんじょ"]],
+  ["services","📅","Je voudrais réserver","予約したいです","yoyaku shitai desu",["よやくしたいです"]],
+  ["services","☎️","Puis-je emprunter un téléphone ?","電話を借りてもいいですか","denwa o karite mo ii desu ka",["でんわをかりてもいいですか"]],
+  ["services","🧭","Pourriez-vous m'indiquer le chemin ?","道を教えてください","michi o oshiete kudasai",["みちをおしえてください"]],
 
-  /* ---------- TEMPLES & CULTURE (15) ---------- */
+  /* ---------- TEMPLES & CULTURE (19) ---------- */
   ["culture","⛩️","Le sanctuaire shinto","神社","jinja",["じんじゃ"]],
   ["culture","🛕","Le temple bouddhiste","お寺","otera",["おてら"]],
   ["culture","🏯","Le château","お城","oshiro",["おしろ"]],
@@ -211,8 +258,12 @@ const MOTS = [
   ["culture","🍁","Les érables d'automne","紅葉","kōyō",["こうよう"]],
   ["culture","🎏","Le festival","祭り","matsuri",["まつり"]],
   ["culture","🎋","C'est magnifique","きれいですね","kirei desu ne"],
+  ["culture","🕙","C'est ouvert ?","開いていますか","aite imasu ka",["あいていますか"]],
+  ["culture","🔒","C'est fermé ?","閉まっていますか","shimatte imasu ka",["しまっていますか"]],
+  ["culture","🚷","Accès interdit (panneau)","立入禁止","tachiiri kinshi",["たちいりきんし"]],
+  ["culture","👟","Chaussures interdites (panneau)","土足禁止","dosoku kinshi",["どそくきんし"]],
 
-  /* ---------- PÉPINS & SANTÉ (16) ---------- */
+  /* ---------- PÉPINS & SANTÉ (19) ---------- */
   ["secours","🆘","Au secours !","助けて","tasukete",["たすけて"]],
   ["secours","🏥","L'hôpital","病院","byōin",["びょういん"]],
   ["secours","👮","La police","警察","keisatsu",["けいさつ"]],
@@ -229,8 +280,11 @@ const MOTS = [
   ["secours","🏛️","L'ambassade","大使館","taishikan",["たいしかん"]],
   ["secours","⚠️","J'ai une allergie","アレルギーがあります","arerugī ga arimasu"],
   ["secours","📄","L'assurance","保険","hoken",["ほけん"]],
+  ["secours","🚨","On m'a volé mon portefeuille","財布を盗まれました","saifu o nusumaremashita",["さいふをぬすまれました"]],
+  ["secours","🧯","C'est une urgence","緊急です","kinkyū desu",["きんきゅうです"]],
+  ["secours","🆔","J'ai perdu mon passeport","パスポートをなくしました","pasupōto o nakushimashita",["ぱすぽーとをなくしました"]],
 
-  /* ---------- TEMPS & HORAIRES (16) ---------- */
+  /* ---------- TEMPS & HORAIRES (20) ---------- */
   ["temps","🕐","Il est quelle heure ?","何時ですか","nanji desu ka",["なんじですか"]],
   ["temps","📅","Aujourd'hui","今日","kyō",["きょう"]],
   ["temps","🌅","Demain","明日","ashita",["あした"]],
@@ -247,6 +301,10 @@ const MOTS = [
   ["temps","🥶","Il fait froid","寒いです","samui desu",["さむいです"]],
   ["temps","🌀","Le typhon","台風","taifū",["たいふう"]],
   ["temps","📆","Le week-end","週末","shūmatsu",["しゅうまつ"]],
+  ["temps","📆","La semaine prochaine","来週","raishū",["らいしゅう"]],
+  ["temps","🌅","Le matin (avant midi)","午前","gozen",["ごぜん"]],
+  ["temps","🌇","L'après-midi","午後","gogo",["ごご"]],
+  ["temps","⏲️","Combien de temps faut-il ?","何分かかりますか","nanpun kakarimasu ka",["なんぷんかかりますか"]],
 
   /* ---------- CHIFFRES (13) ---------- */
   ["chiffres","1️⃣","Un","一","ichi",["いち","1","1つ","一つ"]],
