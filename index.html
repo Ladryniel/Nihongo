@@ -169,6 +169,9 @@
   .kq{background:var(--card);border-radius:var(--r);padding:28px 18px;text-align:center;margin-bottom:14px;
     box-shadow:0 2px 12px rgba(44,51,39,.06)}
   .kq .big{font-family:var(--jp);font-size:62px;line-height:1.2;margin:0;font-weight:600}
+  .kq .sens em.muet{font-style:italic;color:#B9B2A4;font-weight:400}
+  .opts button em.muet{font-style:italic;color:#B0A99B;font-weight:400}
+  .kq .legende{font-size:12.5px;color:var(--ink-soft);display:inline-block;margin-top:6px;line-height:1.35}
   .kq .sens{font-size:14.5px;color:var(--ink-soft);margin:10px 0 0;min-height:22px}
   .opts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
   .opts button{
@@ -345,7 +348,7 @@ const DRILLS = [
   {t:"Les voyelles longues comptent",d:"おばさん est une dame, おばあさん une grand-mère. Tiens la voyelle deux temps, sans changer de hauteur.",ex:"とう<em>きょう</em> ・ ビ<em>ー</em>ル ・ く<em>う</em>こう",say:"とうきょう"},
   {t:"Le う de です et ます s'efface",d:"On dit « dess » et « mass ». Le う final est chuchoté, presque muet.",ex:"そう<em>です</em> ・ わかり<em>ます</em>",say:"わかります"},
   {t:"ん se colore selon la suite",d:"Devant b, p, m il devient « m » : senpai sonne « sempai ». En fin de mot, c'est un son nasal tenu, pas le « n » français.",ex:"せ<em>ん</em>ぱい ・ に<em>ほん</em>",say:"せんぱい"},
-  {t:"Chaque more dure le même temps",d:"Le japonais se scande, il ne s'accentue pas comme le français. Ne pose pas d'accent tonique sur la dernière syllabe.",ex:"か・ま・く・ら ・ あ・り・が・と・う",say:"かまくら"}
+  {t:"Chaque syllabe dure exactement le même temps",d:"Le japonais se scande : chaque syllabe occupe la même durée, comme les temps d'une mesure. Ne pose pas d'accent tonique sur la dernière syllabe comme en français.",ex:"か・ま・く・ら ・ あ・り・が・と・う",say:"かまくら"}
 ];
 
 /* ---------------- utilitaires ---------------- */
@@ -423,12 +426,17 @@ function pickVoice(){
   jaVoice=vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith("ja"))||null;
 }
 if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
-function speak(text){
+function speak(text,relance){
   if(!window.speechSynthesis)return;
   speechSynthesis.cancel();
+  if(!jaVoice)pickVoice();
   const u=new SpeechSynthesisUtterance(text);
   u.lang="ja-JP";u.rate=.85;if(jaVoice)u.voice=jaVoice;
+  let parti=false;
+  u.onstart=()=>{parti=true;};
   speechSynthesis.speak(u);
+  // un kana isolé est parfois avalé par la synthèse : on retente une fois
+  if(!relance)setTimeout(()=>{if(!parti)speak(text,true);},420);
 }
 
 /* ---------------- reconnaissance ---------------- */
@@ -463,10 +471,34 @@ function showWarn(kind){
 
 /* ---------------- navigation ---------------- */
 const ECRANS=["home","vocab","practice","kana","drills"];
-function ecran(id){
+function montrer(id){
   ECRANS.forEach(e=>$(e).classList.toggle("hidden",e!==id));
   window.scrollTo(0,0);
 }
+function pousser(){ try{history.pushState({n:Date.now()},"");}catch(e){} }
+function ecran(id){ montrer(id); pousser(); }
+// Le bouton retour du téléphone remonte d'un écran au lieu de quitter l'appli.
+function retourLogique(){
+  if(!$("practice").classList.contains("hidden")){
+    if(listening&&rec)rec.stop();
+    montrer("vocab");paintCats();return;
+  }
+  if(!$("kana").classList.contains("hidden")){
+    if(kview==="quiz"){kvue("niveaux");return;}
+    if(kview==="table"||kview==="niveaux"){kvue("menu");return;}
+    montrer("home");return;
+  }
+  if(!$("vocab").classList.contains("hidden")||!$("drills").classList.contains("hidden")){
+    montrer("home");return;
+  }
+}
+window.addEventListener("popstate",()=>{
+  const surAccueil=!$("home").classList.contains("hidden");
+  if(surAccueil)return;          // on laisse le téléphone quitter l'appli
+  retourLogique();
+  pousser();                      // on réarme un cran pour le prochain retour
+});
+try{history.replaceState({n:0},"");}catch(e){}
 
 /* ---------------- accueil ---------------- */
 let selected=new Set(Object.keys(CATS));
@@ -487,7 +519,7 @@ function paintCats(){
   $("start").textContent = dispo ? "Commencer" : "Choisis une situation";
 }
 $("goVocab").onclick=()=>{ecran("vocab");paintCats();};
-$("vocabBack").onclick=()=>ecran("home");
+$("vocabBack").onclick=()=>history.back();
 $("catAll").onclick=()=>{Object.keys(CATS).forEach(k=>selected.add(k));paintCats();};
 $("catNone").onclick=()=>{selected.clear();paintCats();};
 
@@ -598,10 +630,7 @@ function checkTyped(){
 }
 $("kbdCheck").onclick=checkTyped;
 $("kbdInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkTyped();});
-$("quit").onclick=()=>{
-  if(listening&&rec)rec.stop();
-  ecran("vocab");paintCats();
-};
+$("quit").onclick=()=>history.back();
 $("skip").onclick=()=>next();
 $("reveal").onclick=()=>{if(cur)revealAnswer();};
 $("listen").onclick=()=>{if(cur)speak(cur.ja);};
@@ -636,7 +665,7 @@ function handleHeard(alts){
 
 /* drills */
 $("goDrills").onclick=()=>ecran("drills");
-$("quitDrills").onclick=()=>ecran("home");
+$("quitDrills").onclick=()=>history.back();
 function paintDrills(){
   $("drillList").innerHTML="";
   DRILLS.forEach((d,i)=>{
@@ -706,6 +735,8 @@ $("aExport").onclick=async()=>{
 let kview="menu", kscript="hira", klevel=1, kdeck=[], kidx=0, kbonnes=0, kverrou=false;
 
 function kcle(sc,niv,item){return sc+niv+":"+item;}
+const nu = t => String(t).replace(/[{}]/g,"");                       // texte nu
+const fmt = t => String(t).replace(/\{([^}]*)\}/g,'<em class="muet">$1</em>');
 function kbox(c){return (prog.kana&&prog.kana[c])||0;}
 function kscore(c,ok){
   prog.kana=prog.kana||{};
@@ -718,18 +749,17 @@ function kacquis(sc,niv,liste){
 }
 function kliste(sc,niv){
   const K=KANA[sc];
-  if(niv===1)return K.base.concat(K.dakuten);
-  return niv===2?K.niveau2:K.niveau3;
+  if(niv===1)return K.base;
+  if(niv===2)return K.niveau2;
+  if(niv===3)return K.niveau3;
+  return K.dakuten.concat(K.niveau4);   // niveau 4 : les kana à accents
 }
 
-function kshow(v){kview=v;krender();}
-function kopen(){ecran("kana");kshow("menu");}
+function kvue(v){kview=v;krender();}          // sans empiler
+function kshow(v){kvue(v);pousser();}         // navigation avant
+function kopen(){montrer("kana");kvue("menu");pousser();}
 $("goKana").onclick=kopen;
-$("kanaBack").onclick=()=>{
-  if(kview==="quiz"){kshow("niveaux");return;}
-  if(kview==="table"||kview==="niveaux"){kshow("menu");return;}
-  ecran("home");
-};
+$("kanaBack").onclick=()=>history.back();
 
 function krender(){
   const b=$("kanabody");b.innerHTML="";
@@ -792,12 +822,13 @@ function ktable(b){
 function kniveaux(b){
   const K=KANA[kscript];
   const h=document.createElement("div");
-  h.innerHTML=`<h2 class="ktitle">Exercices ${K.nom.toLowerCase()}</h2><p class="ksub">Le kana ou le mot s'affiche, tu choisis la bonne lecture parmi quatre propositions.</p>`;
+  h.innerHTML=`<h2 class="ktitle">Exercices ${K.nom.toLowerCase()}</h2><p class="ksub">Le kana ou le mot s'affiche, tu choisis la bonne lecture parmi quatre propositions. Les trois premiers niveaux ignorent les accents, qui ont le leur.</p>`;
   b.appendChild(h);
   const g=document.createElement("div");g.className="kmenu";
-  [[1,"Niveau 1 — une syllabe","Les 71 kana un par un. La base de tout."],
-   [2,"Niveau 2 — mots de deux kana","Des mots courants très courts."],
-   [3,"Niveau 3 — mots de trois ou quatre kana","Lecture enchaînée, petits sons difficiles inclus."]
+  [[1,"Niveau 1 — un kana à la fois","Les 46 syllabes de base, une par une. La fondation."],
+   [2,"Niveau 2 — mots composés de deux kana","Des mots courts, sans aucun accent."],
+   [3,"Niveau 3 — mots composés de trois ou quatre kana","Lecture enchaînée, toujours sans accent."],
+   [4,"Niveau 4 — les accents : dakuten et handakuten","Les 25 kana modifiés et les mots qui les emploient."]
   ].forEach(([n,t,d])=>{
     const l=kliste(kscript,n);
     const fait=kacquis(kscript,n,l);
@@ -853,7 +884,7 @@ function kquestion(b){
   const g=document.createElement("div");g.className="opts";
   choix.forEach(c=>{
     const btn=document.createElement("button");
-    btn.textContent=c;
+    btn.innerHTML=fmt(c);
     btn.onclick=()=>{
       if(kverrou)return;kverrou=true;
       const ok=(c===lecture);
@@ -861,12 +892,13 @@ function kquestion(b){
       kscore(kcle(kscript,klevel,signe),ok);
       if(ok)kbonnes++;
       g.querySelectorAll("button").forEach(x=>{
-        if(x.textContent===lecture)x.classList.add("bon");
+        if(x.textContent===nu(lecture))x.classList.add("bon");
         else if(x===btn)x.classList.add("faux");
         x.disabled=true;
       });
-      $("ksens").textContent = sens ? `${lecture} — ${sens}` : lecture;
-      setTimeout(()=>{kidx++;krender();}, ok?900:1800);
+      $("ksens").innerHTML = (sens ? `${fmt(lecture)} — ${sens}` : fmt(lecture))
+        + (/[{]/.test(lecture) ? '<br><span class="legende">la lettre en gris ne se prononce pas telle quelle : elle allonge la voyelle d\'avant</span>' : "");
+      setTimeout(()=>{kidx++;krender();}, ok?1700:3200);
     };
     g.appendChild(btn);
   });
