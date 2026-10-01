@@ -45,6 +45,12 @@
   .hidden{display:none}
 
   /* --- grandes tuiles d'accueil --- */
+  .tdj{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+  .tdj div{background:var(--card);border-radius:14px;padding:12px 8px;text-align:center;
+    box-shadow:0 1px 6px rgba(44,51,39,.05)}
+  .tdj b{display:block;font-size:22px;font-weight:700;color:var(--matcha-d);line-height:1.1}
+  .tdj span{font-size:11.5px;color:var(--ink-soft);line-height:1.25;display:block;margin-top:3px}
+  button.continuer{width:100%;margin-bottom:14px;font-size:17px;padding:15px}
   .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
   .tile{
     border:none;border-radius:var(--r);padding:14px 13px 15px;cursor:pointer;text-align:left;
@@ -193,6 +199,8 @@
   }
   .opts.kana button{font-family:var(--jp);font-size:27px;font-weight:600}
   .kq .big.lat{font-family:var(--sans);font-size:46px;font-weight:700;color:var(--matcha-d)}
+  #ecouteRow{grid-template-columns:1fr}
+  #ecouteRow button{font-size:15.5px;padding:13px 12px;text-align:left}
   .opts button.bon{border-color:var(--matcha);background:var(--matcha-l);color:var(--matcha-d);font-weight:700}
   .opts button.faux{border-color:var(--rose-d);background:var(--rose-l);color:var(--rose-d)}
 
@@ -239,6 +247,16 @@
   ul.perso li span.jp{font-family:var(--jp)}
   ul.perso button{background:none;border:none;color:var(--rose-d);font-size:19px;cursor:pointer;padding:0 4px;font-family:inherit}
   small.note{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:22px;max-width:60ch}
+  .sakura{position:fixed;right:-6px;bottom:-10px;width:150px;height:150px;z-index:0;
+    pointer-events:none;opacity:.5}
+  .sakura svg{width:100%;height:100%;overflow:visible}
+  .sakura .pe ellipse{fill:var(--rose)}
+  .sakura .co{fill:var(--gold)}
+  .sakura .pt{fill:var(--rose);opacity:.75}
+  .sakura .f1{transform:translate(112px,44px)}
+  .sakura .f2{transform:translate(62px,74px)}
+  @media (max-width:360px){.sakura{width:112px;height:112px;opacity:.42}}
+  .wrap{position:relative;z-index:1}
   .warn{border-radius:14px;padding:12px 15px;background:var(--rose-l);font-size:14px;color:var(--rose-d);margin-bottom:18px;font-weight:600}
   .warn code{background:rgba(0,0,0,.05);padding:1px 5px;border-radius:5px}
 </style>
@@ -253,6 +271,8 @@
 
   <!-- ACCUEIL -->
   <section id="home">
+    <div class="tdj" id="tdj"></div>
+    <button class="act continuer hidden" id="continuer"></button>
     <div class="tiles">
       <button class="tile t1" id="goKana">
         <span class="ic">あ</span>
@@ -291,6 +311,7 @@
       <button data-m="mic">Micro de la page</button>
       <button data-m="kbd">Micro du clavier</button>
       <button data-m="self">Auto-évaluation</button>
+      <button data-m="ecoute">Compréhension orale</button>
     </div>
     <p class="modehelp" id="modehelp"></p>
     <details class="addbox">
@@ -324,7 +345,13 @@
     <p class="ksub" id="pResume"></p>
     <div class="ponglets" id="pOnglets"></div>
     <div id="pListe"></div>
-    <div class="row" style="margin-top:16px"><button class="act ghost" id="progresBack">Retour</button></div>
+    <div class="row" style="margin-top:18px">
+      <button class="act ghost" id="pExport">Sauvegarder ma progression</button>
+      <button class="act ghost" id="pImport">Restaurer</button>
+      <input type="file" id="pFichier" accept="application/json" class="hidden">
+    </div>
+    <p class="ksub" id="pMsg" style="margin-top:-6px"></p>
+    <div class="row"><button class="act ghost" id="progresBack">Retour</button></div>
   </section>
 
   <!-- ENTRAÎNEMENT -->
@@ -336,6 +363,7 @@
       <p class="hint" id="hint"></p>
       <div class="answer" id="answer"><p class="veil">Dis-le en japonais, puis appuie sur le micro.</p></div>
       <button class="mic" id="mic" title="Parler">🎙</button>
+      <div class="opts hidden" id="ecouteRow" style="margin-top:16px"></div>
       <div class="kbd hidden" id="kbdRow">
         <input id="kbdInput" type="text" lang="ja" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="🎤 du clavier, ou tape en rōmaji">
         <button class="act" id="kbdCheck">Vérifier</button>
@@ -367,6 +395,30 @@
     <div id="drillList"></div>
     <div class="row"><button class="act ghost" id="quitDrills">Retour</button></div>
   </section>
+</div>
+
+<div class="sakura" aria-hidden="true">
+  <svg viewBox="0 0 160 160">
+    <g class="fl f1">
+      <circle class="co" cx="0" cy="0" r="5"/>
+      <g class="pe"><ellipse cx="0" cy="-15" rx="9" ry="14"/></g>
+      <g class="pe" transform="rotate(72)"><ellipse cx="0" cy="-15" rx="9" ry="14"/></g>
+      <g class="pe" transform="rotate(144)"><ellipse cx="0" cy="-15" rx="9" ry="14"/></g>
+      <g class="pe" transform="rotate(216)"><ellipse cx="0" cy="-15" rx="9" ry="14"/></g>
+      <g class="pe" transform="rotate(288)"><ellipse cx="0" cy="-15" rx="9" ry="14"/></g>
+    </g>
+    <g class="fl f2">
+      <circle class="co" cx="0" cy="0" r="3.4"/>
+      <g class="pe"><ellipse cx="0" cy="-10" rx="6" ry="9.5"/></g>
+      <g class="pe" transform="rotate(72)"><ellipse cx="0" cy="-10" rx="6" ry="9.5"/></g>
+      <g class="pe" transform="rotate(144)"><ellipse cx="0" cy="-10" rx="6" ry="9.5"/></g>
+      <g class="pe" transform="rotate(216)"><ellipse cx="0" cy="-10" rx="6" ry="9.5"/></g>
+      <g class="pe" transform="rotate(288)"><ellipse cx="0" cy="-10" rx="6" ry="9.5"/></g>
+    </g>
+    <ellipse class="pt" cx="48" cy="104" rx="7" ry="10.5" transform="rotate(-28 48 104)"/>
+    <ellipse class="pt" cx="22" cy="132" rx="5.5" ry="8.5" transform="rotate(34 22 132)"/>
+    <ellipse class="pt" cx="86" cy="140" rx="4.6" ry="7" transform="rotate(-12 86 140)"/>
+  </svg>
 </div>
 
 <script src="mots.js"></script>
@@ -511,11 +563,35 @@ function showWarn(kind){
   }
 }
 
+/* ---------------- accueil : chiffres du jour ---------------- */
+function paintAccueil(){
+  const c=comptesDuJour();
+  const acquis=Object.values(prog.box||{}).filter(b=>b>=SEUIL).length;
+  const serie=(prog.jours&&prog.jours.serie)||0;
+  $("tdj").innerHTML=
+    `<div><b>${c.du}</b><span>à réviser<br>aujourd'hui</span></div>`+
+    `<div><b>${acquis}</b><span>cartes<br>acquises</span></div>`+
+    `<div><b>${serie}</b><span>jour${serie>1?"s":""}<br>d'affilée</span></div>`;
+  const b=$("continuer");
+  if(c.du){
+    b.classList.remove("hidden");
+    b.textContent=`Continuer — ${c.du} carte${c.du>1?"s":""} à revoir`;
+  }else if(c.jamais){
+    b.classList.remove("hidden");
+    b.textContent="Découvrir de nouvelles cartes";
+  }else b.classList.add("hidden");
+}
+$("continuer").onclick=()=>{
+  Object.keys(CATS).forEach(k=>selected.add(k));
+  buildDeck();ecran("practice");show();
+};
+
 /* ---------------- navigation ---------------- */
 const ECRANS=["home","vocab","practice","kana","drills","progres"];
 function montrer(id){
   ECRANS.forEach(e=>$(e).classList.toggle("hidden",e!==id));
   window.scrollTo(0,0);
+  if(id==="home")paintAccueil();
 }
 function pousser(){ try{history.pushState({n:Date.now()},"");}catch(e){} }
 function ecran(id){ montrer(id); pousser(); }
@@ -575,7 +651,8 @@ let mode=canMic?"mic":"kbd";
 const MODEHELP={
   mic:"La page écoute directement. Demande Chrome ou Edge sur une adresse sécurisée.",
   kbd:"Appuie sur le champ, puis sur le micro de ton clavier, et dis le mot en japonais. Ajoute le japonais dans les langues de ton clavier (Gboard → Langues → Japonais) pour qu'il écrive en kana. Le rōmaji tapé est accepté aussi.",
-  self:"Tu dis le mot à voix haute, tu révèles la réponse, tu juges toi-même."
+  self:"Tu dis le mot à voix haute, tu révèles la réponse, tu juges toi-même.",
+  ecoute:"Tu entends la phrase en japonais, tu choisis ce qu'elle veut dire. L'inverse des autres modes : ici tu travailles à comprendre, pas à produire."
 };
 function paintModes(){
   document.querySelectorAll("#modes button").forEach(b=>{
@@ -606,7 +683,12 @@ function scoreText(txt){
 function buildDeck(){
   const pool=W.filter(w=>selected.has(w.cat));
   const weighted=[];
-  pool.forEach(w=>{const b=prog.box[w.id]||0;const n=b>=SEUIL?1:(SEUIL+1-b);for(let i=0;i<n;i++)weighted.push(w);});
+  pool.forEach(w=>{
+    const b=prog.box[w.id]||0;
+    let n=b>=SEUIL?1:(SEUIL+1-b);
+    if(aReviser(w))n*=4;            // ce qui est dû passe devant
+    for(let i=0;i<n;i++)weighted.push(w);
+  });
   const seen=new Set();deck=[];
   weighted.sort(()=>Math.random()-.5).forEach(w=>{if(!seen.has(w.id)){seen.add(w.id);deck.push(w);}});
   deck=deck.slice(0,20);idx=0;
@@ -616,6 +698,7 @@ function show(){
   cur=deck[idx];revealed=false;
   $("seal").textContent=CATS[cur.cat].kanji;
   $("emoji").textContent=cur.emoji;
+  $("emoji").onclick=null;$("emoji").style.cursor="";
   $("fr").textContent=cur.fr;
   $("hint").textContent=(prog.box[cur.id]||0)>=SEUIL?"déjà acquis — révision":"";
   $("answer").innerHTML='<p class="veil">Dis-le en japonais à voix haute.</p>';
@@ -624,21 +707,86 @@ function show(){
   $("selfRow").classList.toggle("hidden",mode!=="self");
   $("mic").classList.toggle("hidden",mode!=="mic");
   $("kbdRow").classList.toggle("hidden",mode!=="kbd");
+  $("ecouteRow").classList.toggle("hidden",mode!=="ecoute");
   $("kbdInput").value="";
+  if(mode==="ecoute")preparerEcoute();
+}
+function preparerEcoute(){
+  $("emoji").textContent="🎧";
+  $("fr").textContent="Qu'est-ce que tu entends ?";
+  $("hint").textContent="Touche le casque pour réécouter.";
+  $("emoji").style.cursor="pointer";
+  $("emoji").onclick=()=>speak(cur.ja);
+  const pool=W.filter(w=>w.id!==cur.id&&w.cat===cur.cat);
+  const autres=[];
+  while(autres.length<3&&pool.length){
+    const w=pool.splice(Math.floor(Math.random()*pool.length),1)[0];
+    if(!autres.includes(w.fr))autres.push(w.fr);
+  }
+  const choix=[cur.fr,...autres].sort(()=>Math.random()-.5);
+  const g=$("ecouteRow");g.innerHTML="";
+  let verrou=false;
+  choix.forEach(t=>{
+    const b=document.createElement("button");
+    b.textContent=t;
+    b.onclick=()=>{
+      if(verrou)return;verrou=true;
+      const ok=(t===cur.fr);
+      g.querySelectorAll("button").forEach(x=>{
+        if(x.textContent===cur.fr)x.classList.add("bon");
+        else if(x===b)x.classList.add("faux");
+        x.disabled=true;
+      });
+      revealAnswer();scoreCard(ok);
+      setStatus(ok?"Bien entendu.":"C'était l'autre.",ok?"good":"");
+      next(ok?1700:3000);
+    };
+    g.appendChild(b);
+  });
+  setTimeout(()=>speak(cur.ja),420);
 }
 function revealAnswer(){
   revealed=true;
-  $("answer").innerHTML=`<p class="ja">${cur.ja}</p><p class="romaji">${cur.romaji}</p>`;
+  $("answer").innerHTML=`<p class="ja">${cur.ja}</p><p class="romaji">${cur.romaji}</p>`
+    +(mode==="ecoute"?`<p class="romaji" style="color:var(--ink)">${cur.fr}</p>`:"");
   speak(cur.ja);
 }
 function setStatus(txt,cls){const s=$("status");s.className="status "+(cls||"");s.innerHTML=txt;}
+const JOUR=86400000;
+const DELAIS=[0,1,3,10,30];                 // jours selon le palier atteint
+function planifier(id,boite){
+  prog.due=prog.due||{};
+  prog.due[id]=Date.now()+DELAIS[Math.min(boite,4)]*JOUR;
+}
+function aReviser(w){
+  const d=prog.due&&prog.due[w.id];
+  return !d || d<=Date.now();
+}
+function comptesDuJour(){
+  let du=0,jamais=0;
+  W.forEach(w=>{
+    const vu=(prog.stats&&prog.stats[w.id]&&prog.stats[w.id].v)||0;
+    if(!vu)jamais++; else if(aReviser(w))du++;
+  });
+  return {du,jamais};
+}
+function majSerieJours(){
+  const today=new Date().toISOString().slice(0,10);
+  prog.jours=prog.jours||{dernier:null,serie:0};
+  if(prog.jours.dernier===today)return;
+  const hier=new Date(Date.now()-JOUR).toISOString().slice(0,10);
+  prog.jours.serie=(prog.jours.dernier===hier)?prog.jours.serie+1:1;
+  prog.jours.dernier=today;
+}
 function scoreCard(ok){
+  majSerieJours();
   prog.stats=prog.stats||{};
   const st=prog.stats[cur.id]||{v:0,e:0};
   st.v++; if(!ok)st.e++;
   prog.stats[cur.id]=st;
   const b=prog.box[cur.id]||0;
   prog.box[cur.id]=ok?Math.min(SEUIL,b+1):0;
+  planifier(cur.id,prog.box[cur.id]);
   prog.streak=ok?(prog.streak||0)+1:0;
   save();paintScore();
 }
@@ -797,6 +945,31 @@ function paintProgres(){
     p.textContent=`… et ${liste.length-120} autres.`;h.appendChild(p);
   }
 }
+$("pExport").onclick=()=>{
+  const data=JSON.stringify({version:1,date:new Date().toISOString(),progression:prog,mots:PERSO},null,1);
+  const blob=new Blob([data],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="nihongo-sauvegarde-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  $("pMsg").textContent="Fichier enregistré dans tes téléchargements. Garde-le : il contient toute ta progression.";
+};
+$("pImport").onclick=()=>$("pFichier").click();
+$("pFichier").onchange=async e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d.progression)throw new Error("fichier non reconnu");
+    prog=d.progression;
+    if(Array.isArray(d.mots)){PERSO=d.mots;await savePerso();paintPerso();}
+    await save();paintScore();paintCats();paintProgres();paintAccueil();
+    $("pMsg").textContent="Progression restaurée.";
+  }catch(err){
+    $("pMsg").textContent="Ce fichier n'est pas une sauvegarde valide.";
+  }
+  e.target.value="";
+};
 $("goProgres").onclick=()=>{ecran("progres");paintProgres();};
 $("progresBack").onclick=()=>history.back();
 
@@ -859,6 +1032,7 @@ function kliste(sc,niv){
   if(niv===1)return K.base;
   if(niv===2)return K.niveau2;
   if(niv===3)return K.niveau3;
+  if(niv===5)return K.yoon;             // niveau 5 : les sons combinés
   return K.dakuten.concat(K.niveau4);   // niveau 4 : les kana à accents
 }
 
@@ -874,6 +1048,8 @@ function kgroupes(sc){
   g.push({id:"g9",label:b[43][0]+"行 · wa / n",items:b.slice(43,46)});
   const dn=["ga","za","da","ba","pa"];
   for(let i=0;i<5;i++)g.push({id:"d"+i,label:d[i*5][0]+"行 · "+dn[i],items:d.slice(i*5,i*5+5)});
+  const y=K.yoon;
+  for(let i=0;i<11;i++)g.push({id:"y"+i,label:y[i*3][0]+" · "+y[i*3][1].slice(0,-1),items:y.slice(i*3,i*3+3)});
   return g;
 }         // navigation avant
 function kopen(){montrer("kana");kvue("menu");pousser();}
@@ -931,6 +1107,27 @@ function ktable(b){
     r.push([liste[45],null,null,null,null]);            // n
     return r;
   };
+  const blocYoon=(titre,liste)=>{
+    const t=document.createElement("p");
+    t.style.cssText="font-weight:700;margin:18px 0 8px;font-size:16px";t.textContent=titre;
+    b.appendChild(t);
+    const e=document.createElement("div");e.className="kgrid kcols k3";
+    ["a","u","o"].forEach(v=>{const c=document.createElement("span");c.textContent=v;e.appendChild(c);});
+    b.appendChild(e);
+    const g=document.createElement("div");g.className="kgrid k3";
+    liste.forEach(([c,r])=>{
+      const cell=document.createElement("button");
+      cell.className="kcell";
+      cell.innerHTML=`<span class="c">${c}</span><span class="r">${r}</span>`;
+      cell.onclick=()=>{
+        speak(c);
+        document.querySelectorAll(".kcell.on").forEach(e=>e.classList.remove("on"));
+        cell.classList.add("on");
+      };
+      g.appendChild(cell);
+    });
+    b.appendChild(g);
+  };
   const bloc=(titre,liste)=>{
     const t=document.createElement("p");
     t.style.cssText="font-weight:700;margin:16px 0 8px;font-size:16px";t.textContent=titre;
@@ -964,6 +1161,7 @@ function ktable(b){
   };
   bloc("Syllabes de base",K.base);
   bloc("Avec accents : dakuten et handakuten",K.dakuten);
+  blocYoon("Sons combinés : yōon",K.yoon);
   const note=document.createElement("p");
   note.className="ksub";note.style.marginTop="12px";
   note.innerHTML='ぢ et づ se lisent exactement comme じ et ず : mêmes sons, écritures différentes. '
@@ -981,7 +1179,8 @@ function kniveaux(b){
   [[1,"Niveau 1 — un kana à la fois","Les 46 syllabes de base, une par une. La fondation."],
    [2,"Niveau 2 — mots composés de deux kana","Des mots courts, sans aucun accent."],
    [3,"Niveau 3 — mots composés de trois ou quatre kana","Lecture enchaînée, toujours sans accent."],
-   [4,"Niveau 4 — les accents : dakuten et handakuten","Les 25 kana modifiés et les mots qui les emploient."]
+   [4,"Niveau 4 — les accents : dakuten et handakuten","Les 25 kana modifiés et les mots qui les emploient."],
+   [5,"Niveau 5 — les sons combinés (yōon)","きゃ, しゅ, ちょ… 33 combinaisons. Indispensables pour lire un menu."]
   ].forEach(([n,t,d])=>{
     const l=kliste(kscript,n);
     const fait=kacquis(kscript,n,l);
@@ -1117,6 +1316,7 @@ function klibre(b){
   raccourcis.append(
     mk("Toutes les lignes",()=>{kgroupes(kscript).forEach(g=>gsel.add(g.id));krender();}),
     mk("Les cinq de base",()=>{gsel=new Set(["g0","g1","g2","g3","g4"]);krender();}),
+    mk("Les yōon",()=>{gsel=new Set();for(let i=0;i<11;i++)gsel.add("y"+i);krender();}),
     mk("Aucune",()=>{gsel.clear();krender();})
   );
   b.appendChild(raccourcis);
@@ -1136,7 +1336,11 @@ function klibre(b){
   if(!n){b1.disabled=b2.disabled=true;b1.style.opacity=b2.style.opacity=".45";}
   g2.append(b1,b2);b.appendChild(g2);
 }
-function kniv(c){ return KANA[kscript].dakuten.some(d=>d[0]===c) ? 4 : 1; }
+function kniv(c){
+  const K=KANA[kscript];
+  if(K.yoon.some(y=>y[0]===c))return 5;
+  return K.dakuten.some(d=>d[0]===c) ? 4 : 1;
+}
 function kitemsLibre(){
   const G=kgroupes(kscript),out=[];
   G.forEach(gr=>{if(gsel.has(gr.id))out.push(...gr.items);});
@@ -1248,7 +1452,7 @@ if("serviceWorker" in navigator){
 /* init */
 (async()=>{
   await load();await loadPerso();
-  paintCats();paintDrills();paintModes();paintPerso();
+  paintCats();paintDrills();paintModes();paintPerso();paintAccueil();
   if(!canMic)showWarn("kbd");
 })();
 </script>
