@@ -841,6 +841,11 @@ function ktable(b){
   };
   bloc("Syllabes de base",K.base);
   bloc("Avec accents : dakuten et handakuten",K.dakuten);
+  const note=document.createElement("p");
+  note.className="ksub";note.style.marginTop="12px";
+  note.innerHTML='ぢ et づ se lisent exactement comme じ et ず : mêmes sons, écritures différentes. '
+    +'Elles n\'apparaissent que dans quelques mots, où elles viennent d\'un ち ou d\'un つ transformé.';
+  b.appendChild(note);
 }
 
 /* --- choix du niveau --- */
@@ -912,7 +917,7 @@ function kquestion(b){
     btn.innerHTML=fmt(c);
     btn.onclick=()=>{
       if(kverrou)return;kverrou=true;
-      const ok=(c===lecture);
+      const ok=(nu(c)===nu(lecture));
       speak(signe);
       kscore(kcle(kscript,klevel,signe),ok);
       if(ok)kbonnes++;
