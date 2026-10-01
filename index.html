@@ -178,6 +178,8 @@
     font-family:inherit;font-size:18px;font-weight:600;padding:15px 8px;cursor:pointer;
     background:var(--card);border:1.5px solid var(--line);border-radius:14px;color:var(--ink);
   }
+  .opts.kana button{font-family:var(--jp);font-size:27px;font-weight:600}
+  .kq .big.lat{font-family:var(--sans);font-size:46px;font-weight:700;color:var(--matcha-d)}
   .opts button.bon{border-color:var(--matcha);background:var(--matcha-l);color:var(--matcha-d);font-weight:700}
   .opts button.faux{border-color:var(--rose-d);background:var(--rose-l);color:var(--rose-d)}
 
@@ -484,7 +486,8 @@ function retourLogique(){
     montrer("vocab");paintCats();return;
   }
   if(!$("kana").classList.contains("hidden")){
-    if(kview==="quiz"){kvue("niveaux");return;}
+    if(kview==="quiz"){kvue(kmode==="libre"?"libre":"niveaux");return;}
+    if(kview==="libre"){kvue("niveaux");return;}
     if(kview==="table"||kview==="niveaux"){kvue("menu");return;}
     montrer("home");return;
   }
@@ -756,7 +759,19 @@ function kliste(sc,niv){
 }
 
 function kvue(v){kview=v;krender();}          // sans empiler
-function kshow(v){kvue(v);pousser();}         // navigation avant
+function kshow(v){kvue(v);pousser();}
+let kmode="niveaux", ksensQ="kr", gsel=new Set(["g0","g1"]);
+function kgroupes(sc){
+  const K=KANA[sc],b=K.base,d=K.dakuten,g=[];
+  const noms=["a","ka","sa","ta","na","ha","ma"];
+  for(let i=0;i<7;i++)g.push({id:"g"+i,label:b[i*5][0]+"行 · "+noms[i],items:b.slice(i*5,i*5+5)});
+  g.push({id:"g7",label:b[35][0]+"行 · ya",items:b.slice(35,38)});
+  g.push({id:"g8",label:b[38][0]+"行 · ra",items:b.slice(38,43)});
+  g.push({id:"g9",label:b[43][0]+"行 · wa / n",items:b.slice(43,46)});
+  const dn=["ga","za","da","ba","pa"];
+  for(let i=0;i<5;i++)g.push({id:"d"+i,label:d[i*5][0]+"行 · "+dn[i],items:d.slice(i*5,i*5+5)});
+  return g;
+}         // navigation avant
 function kopen(){montrer("kana");kvue("menu");pousser();}
 $("goKana").onclick=kopen;
 $("kanaBack").onclick=()=>history.back();
@@ -766,6 +781,7 @@ function krender(){
   if(kview==="menu")return kmenu(b);
   if(kview==="table")return ktable(b);
   if(kview==="niveaux")return kniveaux(b);
+  if(kview==="libre")return klibre(b);
   if(kview==="quiz")return kquestion(b);
 }
 
@@ -864,18 +880,72 @@ function kniveaux(b){
     const fait=kacquis(kscript,n,l);
     const btn=document.createElement("button");
     btn.innerHTML=`${t}<small>${d}</small><small>${fait} / ${l.length} acquis</small>`;
-    btn.onclick=()=>{klevel=n;kstart();};
+    btn.onclick=()=>{klevel=n;kmode="niveaux";kstart();};
     g.appendChild(btn);
   });
+  const libre=document.createElement("button");
+  libre.innerHTML=`<span class="kj">自由</span>Entraînement libre<small>Je choisis moi-même les lignes du tableau, deux ou trois à la fois, et je répète jusqu'à ce que ça vienne tout seul.</small>`;
+  libre.onclick=()=>kshow("libre");
+  g.appendChild(libre);
   b.appendChild(g);
+}
+
+/* --- entraînement libre --- */
+function klibre(b){
+  const K=KANA[kscript],G=kgroupes(kscript);
+  const h=document.createElement("div");
+  h.innerHTML=`<h2 class="ktitle">Entraînement libre — ${K.nom.toLowerCase()}</h2>
+    <p class="ksub">Commence par deux lignes, répète jusqu'à répondre sans réfléchir, puis ajoute-en une. C'est bien plus efficace que d'affronter les 46 d'un coup.</p>`;
+  b.appendChild(h);
+
+  const chips=document.createElement("div");chips.className="cats";
+  G.forEach(gr=>{
+    const btn=document.createElement("button");
+    btn.className="cat"+(gsel.has(gr.id)?" on":"");
+    const fait=gr.items.filter(x=>kbox(kcle(kscript,kniv(x[0]),x[0]))>=2).length;
+    btn.innerHTML=`<span class="kj">${gr.items[0][0]}</span>${gr.label}<span class="meta">${fait}/${gr.items.length}</span>`;
+    btn.onclick=()=>{gsel.has(gr.id)?gsel.delete(gr.id):gsel.add(gr.id);krender();};
+    chips.appendChild(btn);
+  });
+  b.appendChild(chips);
+
+  const raccourcis=document.createElement("div");raccourcis.className="catall";
+  const mk=(t,fn)=>{const x=document.createElement("button");x.textContent=t;x.onclick=fn;return x;};
+  raccourcis.append(
+    mk("Toutes les lignes",()=>{kgroupes(kscript).forEach(g=>gsel.add(g.id));krender();}),
+    mk("Les cinq de base",()=>{gsel=new Set(["g0","g1","g2","g3","g4"]);krender();}),
+    mk("Aucune",()=>{gsel.clear();krender();})
+  );
+  b.appendChild(raccourcis);
+
+  const n=kitemsLibre().length;
+  const info=document.createElement("p");info.className="ksub";
+  info.textContent = n ? n+" kana sélectionnés." : "Choisis au moins une ligne.";
+  b.appendChild(info);
+
+  const g2=document.createElement("div");g2.className="kmenu";
+  const b1=document.createElement("button");
+  b1.innerHTML=`Kana → rōmaji<small>Le signe s'affiche, tu choisis sa lecture.</small>`;
+  b1.onclick=()=>{if(!n)return;kmode="libre";ksensQ="kr";kstart();};
+  const b2=document.createElement("button");
+  b2.innerHTML=`Rōmaji → kana<small>La lecture s'affiche, tu retrouves le signe. Plus exigeant.</small>`;
+  b2.onclick=()=>{if(!n)return;kmode="libre";ksensQ="rk";kstart();};
+  if(!n){b1.disabled=b2.disabled=true;b1.style.opacity=b2.style.opacity=".45";}
+  g2.append(b1,b2);b.appendChild(g2);
+}
+function kniv(c){ return KANA[kscript].dakuten.some(d=>d[0]===c) ? 4 : 1; }
+function kitemsLibre(){
+  const G=kgroupes(kscript),out=[];
+  G.forEach(gr=>{if(gsel.has(gr.id))out.push(...gr.items);});
+  return out;
 }
 
 /* --- quiz --- */
 function kstart(){
-  const liste=kliste(kscript,klevel);
+  const liste = kmode==="libre" ? kitemsLibre() : kliste(kscript,klevel);
   const pond=[];
   liste.forEach(x=>{
-    const c=kcle(kscript,klevel,Array.isArray(x)?x[0]:x);
+    const c=kcle(kscript, kmode==="libre"?kniv(x[0]):klevel, Array.isArray(x)?x[0]:x);
     const n=kbox(c)>=2?1:3;
     for(let i=0;i<n;i++)pond.push(x);
   });
@@ -891,7 +961,10 @@ function kquestion(b){
   kverrou=false;
   const item=kdeck[kidx];
   const [signe,lecture,sens]=[item[0],item[1],item[2]||""];
-  const liste=kliste(kscript,klevel);
+  const liste = kmode==="libre" ? kitemsLibre() : kliste(kscript,klevel);
+  const inverse = (kmode==="libre" && ksensQ==="rk");   // rōmaji affiché, kana à trouver
+  const enonce  = inverse ? nu(lecture) : signe;
+  const bonne   = inverse ? signe : lecture;
 
   const prog_=document.createElement("p");
   prog_.className="ksub";prog_.style.margin="0 0 10px";
@@ -900,33 +973,34 @@ function kquestion(b){
 
   const carte=document.createElement("div");
   carte.className="kq";
-  carte.innerHTML=`<p class="big">${signe}</p><p class="sens" id="ksens"></p>`;
+  carte.innerHTML=`<p class="big${inverse?" lat":""}">${fmt(enonce)}</p><p class="sens" id="ksens"></p>`;
   b.appendChild(carte);
 
-  const autres=liste.filter(x=>x[1]!==lecture).map(x=>x[1]);
-  const choix=[lecture];
+  const autres = inverse ? liste.filter(x=>x[0]!==signe).map(x=>x[0])
+                         : liste.filter(x=>x[1]!==lecture).map(x=>x[1]);
+  const choix=[bonne];
   while(choix.length<4&&autres.length){
     const c=autres.splice(Math.floor(Math.random()*autres.length),1)[0];
     if(!choix.includes(c))choix.push(c);
   }
   choix.sort(()=>Math.random()-.5);
 
-  const g=document.createElement("div");g.className="opts";
+  const g=document.createElement("div");g.className="opts"+(inverse?" kana":"");
   choix.forEach(c=>{
     const btn=document.createElement("button");
     btn.innerHTML=fmt(c);
     btn.onclick=()=>{
       if(kverrou)return;kverrou=true;
-      const ok=(nu(c)===nu(lecture));
+      const ok=(nu(c)===nu(bonne));
       speak(signe);
-      kscore(kcle(kscript,klevel,signe),ok);
+      kscore(kcle(kscript, kmode==="libre"?kniv(signe):klevel, signe),ok);
       if(ok)kbonnes++;
       g.querySelectorAll("button").forEach(x=>{
-        if(x.textContent===nu(lecture))x.classList.add("bon");
+        if(x.textContent===nu(bonne))x.classList.add("bon");
         else if(x===btn)x.classList.add("faux");
         x.disabled=true;
       });
-      $("ksens").innerHTML = (sens ? `${fmt(lecture)} — ${sens}` : fmt(lecture))
+      $("ksens").innerHTML = (inverse ? `${signe} — ${fmt(lecture)}` : (sens ? `${fmt(lecture)} — ${sens}` : fmt(lecture)))
         + (/[{]/.test(lecture) ? '<br><span class="legende">la lettre en gris ne se prononce pas telle quelle : elle allonge la voyelle d\'avant</span>' : "");
       setTimeout(()=>{kidx++;krender();}, ok?1700:3200);
     };
@@ -936,15 +1010,19 @@ function kquestion(b){
 }
 
 function kfin(b){
-  const liste=kliste(kscript,klevel);
-  const fait=kacquis(kscript,klevel,liste);
+  const liste = kmode==="libre" ? kitemsLibre() : kliste(kscript,klevel);
+  const fait = kmode==="libre"
+    ? liste.filter(x=>kbox(kcle(kscript,kniv(x[0]),x[0]))>=2).length
+    : kacquis(kscript,klevel,liste);
   const h=document.createElement("div");
   h.innerHTML=`<h2 class="ktitle">Série terminée</h2>
-    <p class="ksub">${kbonnes} bonnes réponses sur ${kdeck.length}. Au total : ${fait} sur ${liste.length} acquis à ce niveau.</p>`;
+    <p class="ksub">${kbonnes} bonnes réponses sur ${kdeck.length}. Au total : ${fait} sur ${liste.length} acquis dans cette sélection.</p>`;
   b.appendChild(h);
   const g=document.createElement("div");g.className="kmenu";
   const r=document.createElement("button");r.innerHTML="Refaire une série";r.onclick=kstart;
-  const n=document.createElement("button");n.innerHTML="Changer de niveau";n.onclick=()=>kshow("niveaux");
+  const n=document.createElement("button");
+  n.innerHTML = kmode==="libre" ? "Changer de lignes" : "Changer de niveau";
+  n.onclick=()=>kshow(kmode==="libre"?"libre":"niveaux");
   g.append(r,n);b.appendChild(g);
 }
 
