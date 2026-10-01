@@ -1,9 +1,10 @@
-const CACHE = "nihongo-v5";
+const CACHE = "nihongo-v6";
 const FILES = [
   "./",
   "./index.html",
   "./mots.js",
   "./kana.js",
+  "./traits.js",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",

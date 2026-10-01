@@ -166,6 +166,17 @@
   .kcell.on .r{color:rgba(255,255,255,.85)}
   .kcell .c{font-family:var(--jp);font-size:25px;line-height:1.1;display:block;font-weight:600}
   .kcell .r{font-size:11.5px;color:var(--ink-soft);display:block;margin-top:2px}
+  .ebox{background:var(--card);border-radius:var(--r);padding:16px;text-align:center;
+    box-shadow:0 2px 12px rgba(44,51,39,.06)}
+  .eposition{font-size:13px;color:var(--ink-soft);margin-bottom:8px}
+  .ewrap{position:relative;width:100%;max-width:300px;margin:0 auto;aspect-ratio:1/1}
+  .emodele,.ecanvas{position:absolute;inset:0;width:100%;height:100%}
+  .emodele line{stroke:var(--line);stroke-width:1;stroke-dasharray:4 4}
+  .emodele path{fill:none;stroke:#E2E7DF;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
+  .emodele path.anim{stroke:var(--matcha);stroke-width:5.5}
+  .ecanvas{touch-action:none;cursor:crosshair}
+  .electure{margin:12px 0 0;font-size:17px;color:var(--ink-soft)}
+  .electure b{font-family:var(--jp);font-size:26px;color:var(--ink);margin-right:6px}
   .kq{background:var(--card);border-radius:var(--r);padding:28px 18px;text-align:center;margin-bottom:14px;
     box-shadow:0 2px 12px rgba(44,51,39,.06)}
   .kq .big{font-family:var(--jp);font-size:62px;line-height:1.2;margin:0;font-weight:600}
@@ -332,6 +343,7 @@
 
 <script src="mots.js"></script>
 <script src="kana.js"></script>
+<script src="traits.js"></script>
 <script>
 const CATS = RUBRIQUES;
 let PERSO=[];
@@ -488,6 +500,7 @@ function retourLogique(){
   if(!$("kana").classList.contains("hidden")){
     if(kview==="quiz"){kvue(kmode==="libre"?"libre":"niveaux");return;}
     if(kview==="libre"){kvue("niveaux");return;}
+    if(kview==="ecrire"){kvue("menu");return;}
     if(kview==="table"||kview==="niveaux"){kvue("menu");return;}
     montrer("home");return;
   }
@@ -782,6 +795,7 @@ function krender(){
   if(kview==="table")return ktable(b);
   if(kview==="niveaux")return kniveaux(b);
   if(kview==="libre")return klibre(b);
+  if(kview==="ecrire")return ecran_ecrire(b);
   if(kview==="quiz")return kquestion(b);
 }
 
@@ -794,8 +808,10 @@ function kmenu(b){
   const entrees=[
     ["Tableau des hiragana","ひらがな","46 syllabes de base + 25 avec accents. Appuie sur une case pour l'entendre.",()=>{kscript="hira";kshow("table");}],
     ["Exercices hiragana","ひらがな","Trois niveaux, de la syllabe seule aux mots de quatre kana.",()=>{kscript="hira";kshow("niveaux");}],
+    ["Écrire les hiragana","書く","L'ordre des traits animé, et de quoi s'exercer au doigt par-dessus le modèle.",()=>{kscript="hira";eouvrir();}],
     ["Tableau des katakana","カタカナ","L'écriture des mots étrangers : menus, enseignes, transports.",()=>{kscript="kata";kshow("table");}],
-    ["Exercices katakana","カタカナ","Mêmes trois niveaux, avec des mots empruntés au français et à l'anglais.",()=>{kscript="kata";kshow("niveaux");}]
+    ["Exercices katakana","カタカナ","Les mêmes quatre niveaux, avec des mots empruntés au français et à l'anglais.",()=>{kscript="kata";kshow("niveaux");}],
+    ["Écrire les katakana","書く","L'ordre des traits animé, et de quoi s'exercer au doigt par-dessus le modèle.",()=>{kscript="kata";eouvrir();}]
   ];
   entrees.forEach(([t,kj,d,fn])=>{
     const btn=document.createElement("button");
@@ -888,6 +904,102 @@ function kniveaux(b){
   libre.onclick=()=>kshow("libre");
   g.appendChild(libre);
   b.appendChild(g);
+}
+
+/* ---------------- ÉCRIRE LES KANA ---------------- */
+let elist=[], eidx=0, estroke=0, edessin=[], etrace=false;
+
+function eitems(){
+  const K=KANA[kscript];
+  return K.base.concat(K.dakuten).filter(x=>TRAITS[x[0]]);
+}
+function eouvrir(){ eidx=0; kshow("ecrire"); }
+
+function ecran_ecrire(b){
+  elist=eitems();
+  const [c,r]=elist[eidx];
+  const traits=TRAITS[c]||[];
+  const h=document.createElement("div");
+  h.innerHTML=`<h2 class="ktitle">Écrire les ${KANA[kscript].nom.toLowerCase()}</h2>
+    <p class="ksub">Regarde l'animation, puis trace par-dessus le modèle avec le doigt. ${traits.length} trait${traits.length>1?"s":""}.</p>`;
+  b.appendChild(h);
+
+  const boite=document.createElement("div");
+  boite.className="ebox";
+  boite.innerHTML=`
+    <div class="eposition">${eidx+1} / ${elist.length}</div>
+    <div class="ewrap">
+      <svg class="emodele" viewBox="0 0 109 109" aria-hidden="true">
+        <line x1="54.5" y1="0" x2="54.5" y2="109"></line>
+        <line x1="0" y1="54.5" x2="109" y2="54.5"></line>
+        ${traits.map((d,i)=>`<path class="t${i}" d="${d}"></path>`).join("")}
+        ${traits.map((d,i)=>`<path class="anim a${i}" d="${d}"></path>`).join("")}
+      </svg>
+      <canvas class="ecanvas" width="436" height="436"></canvas>
+    </div>
+    <p class="electure"><b>${c}</b> — ${nu(r)}</p>`;
+  b.appendChild(boite);
+
+  const g=document.createElement("div");g.className="row";g.style.marginTop="14px";
+  const mk=(t,cl,fn)=>{const x=document.createElement("button");x.className="act "+cl;x.textContent=t;x.onclick=fn;return x;};
+  g.append(
+    mk("Montrer le tracé","",()=>animer(traits.length)),
+    mk("Effacer","ghost",()=>effacer()),
+    mk("Précédent","ghost",()=>{eidx=(eidx-1+elist.length)%elist.length;krender();}),
+    mk("Suivant","ghost",()=>{eidx=(eidx+1)%elist.length;krender();})
+  );
+  b.appendChild(g);
+
+  const aide=document.createElement("p");
+  aide.className="ksub";aide.style.marginTop="10px";
+  aide.textContent="Les traits se font de haut en bas et de gauche à droite, dans l'ordre de l'animation. C'est cet ordre qui donne à l'écriture sa forme juste, même tracée vite.";
+  b.appendChild(aide);
+  const credit=document.createElement("p");
+  credit.className="ksub";credit.style.cssText="margin-top:14px;font-size:12px";
+  credit.innerHTML='Tracés : <a href="http://kanjivg.tagaini.net" target="_blank" rel="noopener">KanjiVG</a> (Ulrich Apel), licence CC BY-SA 3.0.';
+  b.appendChild(credit);
+
+  setTimeout(()=>{preparerCanvas();animer(traits.length);speak(c);},60);
+}
+
+function animer(n){
+  const svg=document.querySelector(".emodele");if(!svg)return;
+  for(let i=0;i<n;i++){
+    const p=svg.querySelector(".a"+i);if(!p)continue;
+    const L=p.getTotalLength();
+    p.style.transition="none";
+    p.style.strokeDasharray=L+" "+L;
+    p.style.strokeDashoffset=L;
+    p.getBoundingClientRect();
+    p.style.transition=`stroke-dashoffset .62s ease ${i*0.66}s`;
+    p.style.strokeDashoffset="0";
+  }
+}
+
+function preparerCanvas(){
+  const cv=document.querySelector(".ecanvas");if(!cv)return;
+  const ctx=cv.getContext("2d");
+  ctx.lineWidth=14;ctx.lineCap="round";ctx.lineJoin="round";
+  ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue("--matcha-d")||"#4C6B43";
+  let dessine=false;
+  const pos=e=>{
+    const r=cv.getBoundingClientRect();
+    const t=e.touches?e.touches[0]:e;
+    return [(t.clientX-r.left)*cv.width/r.width,(t.clientY-r.top)*cv.height/r.height];
+  };
+  const debut=e=>{e.preventDefault();dessine=true;const[x,y]=pos(e);ctx.beginPath();ctx.moveTo(x,y);};
+  const bouge=e=>{if(!dessine)return;e.preventDefault();const[x,y]=pos(e);ctx.lineTo(x,y);ctx.stroke();};
+  const fin=()=>{dessine=false;};
+  cv.addEventListener("touchstart",debut,{passive:false});
+  cv.addEventListener("touchmove",bouge,{passive:false});
+  cv.addEventListener("touchend",fin);
+  cv.addEventListener("mousedown",debut);
+  cv.addEventListener("mousemove",bouge);
+  window.addEventListener("mouseup",fin);
+}
+function effacer(){
+  const cv=document.querySelector(".ecanvas");if(!cv)return;
+  cv.getContext("2d").clearRect(0,0,cv.width,cv.height);
 }
 
 /* --- entraînement libre --- */
