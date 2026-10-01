@@ -795,27 +795,52 @@ function ktable(b){
   const h=document.createElement("div");
   h.innerHTML=`<h2 class="ktitle">Tableau des ${K.nom.toLowerCase()}</h2><p class="ksub">Appuie sur une case pour entendre la prononciation.</p>`;
   b.appendChild(h);
-  const bloc=(titre,liste,parRang)=>{
+  // grille gojūon : 5 colonnes a-i-u-e-o, cases manquantes laissées vides
+  const rangs=(liste)=>{
+    if(liste.length===25){            // accents : 5 rangées pleines
+      const r=[];for(let i=0;i<25;i+=5)r.push(liste.slice(i,i+5));return r;
+    }
+    const r=[];
+    for(let i=0;i<35;i+=5)r.push(liste.slice(i,i+5));   // a ka sa ta na ha ma
+    r.push([liste[35],null,liste[36],null,liste[37]]);  // ya __ yu __ yo
+    r.push(liste.slice(38,43));                         // ra ri ru re ro
+    r.push([liste[43],null,null,null,liste[44]]);       // wa __ __ __ wo
+    r.push([liste[45],null,null,null,null]);            // n
+    return r;
+  };
+  const bloc=(titre,liste)=>{
     const t=document.createElement("p");
-    t.style.cssText="font-weight:600;margin:16px 0 8px;font-size:16px";t.textContent=titre;
+    t.style.cssText="font-weight:700;margin:16px 0 8px;font-size:16px";t.textContent=titre;
     b.appendChild(t);
+    const entete=document.createElement("div");
+    entete.className="kgrid kcols";
+    ["a","i","u","e","o"].forEach(v=>{
+      const c=document.createElement("span");c.textContent=v;entete.appendChild(c);
+    });
+    b.appendChild(entete);
     const g=document.createElement("div");g.className="kgrid";
-    // completer les rangees incompletes (ya/yu/yo, wa/wo/n)
-    liste.forEach(([c,r])=>{
-      const cell=document.createElement("button");
-      cell.className="kcell";
-      cell.innerHTML=`<span class="c">${c}</span><span class="r">${r}</span>`;
-      cell.onclick=()=>{
-        speak(c);
-        document.querySelectorAll(".kcell.on").forEach(e=>e.classList.remove("on"));
-        cell.classList.add("on");
-      };
-      g.appendChild(cell);
+    rangs(liste).forEach(rang=>{
+      rang.forEach(item=>{
+        if(!item){
+          const vide=document.createElement("span");vide.className="kcell vide";g.appendChild(vide);
+          return;
+        }
+        const [c,r]=item;
+        const cell=document.createElement("button");
+        cell.className="kcell";
+        cell.innerHTML=`<span class="c">${c}</span><span class="r">${r}</span>`;
+        cell.onclick=()=>{
+          speak(c);
+          document.querySelectorAll(".kcell.on").forEach(e=>e.classList.remove("on"));
+          cell.classList.add("on");
+        };
+        g.appendChild(cell);
+      });
     });
     b.appendChild(g);
   };
   bloc("Syllabes de base",K.base);
-  bloc("Avec accents (dakuten et handakuten)",K.dakuten);
+  bloc("Avec accents : dakuten et handakuten",K.dakuten);
 }
 
 /* --- choix du niveau --- */
