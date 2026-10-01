@@ -247,6 +247,20 @@
   ul.perso li span.jp{font-family:var(--jp)}
   ul.perso button{background:none;border:none;color:var(--rose-d);font-size:19px;cursor:pointer;padding:0 4px;font-family:inherit}
   small.note{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:22px;max-width:60ch}
+  #splash{
+    position:fixed;inset:0;z-index:100;background:#FAEBE6;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    transition:opacity .55s ease;
+  }
+  #splash img{width:min(56vw,230px);height:auto;animation:apparait .7s ease both}
+  #splash p{font-family:var(--jp);font-size:15px;letter-spacing:.22em;color:#C98A95;margin:0;
+    animation:apparait .7s ease .22s both}
+  #splash.parti{opacity:0;pointer-events:none}
+  @keyframes apparait{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){
+    #splash img,#splash p{animation:none}
+    #splash{transition:none}
+  }
   .sakura{position:fixed;right:-6px;bottom:-10px;width:150px;height:150px;z-index:0;
     pointer-events:none;opacity:.5}
   .sakura svg{width:100%;height:100%;overflow:visible}
@@ -395,6 +409,11 @@
     <div id="drillList"></div>
     <div class="row"><button class="act ghost" id="quitDrills">Retour</button></div>
   </section>
+</div>
+
+<div id="splash">
+  <img src="logo.png" alt="Nihongo de voyage">
+  <p>旅の日本語</p>
 </div>
 
 <div class="sakura" aria-hidden="true">
@@ -1448,6 +1467,20 @@ window.addEventListener("appinstalled",()=>$("install").classList.add("hidden"))
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 }
+
+/* écran d'ouverture */
+(function(){
+  const sp=document.getElementById("splash");
+  if(!sp)return;
+  let fini=false;
+  const fermer=()=>{
+    if(fini)return;fini=true;
+    sp.classList.add("parti");
+    setTimeout(()=>sp.remove(),650);
+  };
+  setTimeout(fermer,1900);
+  sp.addEventListener("click",fermer);     // on peut l'écourter d'une touche
+})();
 
 /* init */
 (async()=>{
