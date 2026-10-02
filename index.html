@@ -154,29 +154,47 @@
   .modehelp{font-size:13px;color:var(--ink-soft);margin:0 0 6px;max-width:58ch}
 
   /* --- carte d'entraînement --- */
-  .stage{background:var(--card);border-radius:var(--r);padding:26px 20px 22px;position:relative;text-align:center;
+  .pbar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:0 0 6px}
+  .pbar i{display:block;height:100%;background:var(--matcha);transition:width .3s;border-radius:99px}
+  .pcount{font-size:12px;color:var(--ink-soft);margin:0 0 10px;text-align:right}
+  .stage{background:var(--card);border-radius:var(--r);padding:18px 16px 16px;position:relative;text-align:center;
     box-shadow:0 2px 12px rgba(44,51,39,.06)}
+  .actions{display:flex;align-items:center;justify-content:center;gap:26px;margin:16px 0 4px}
+  .rond{background:none;border:none;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--ink-soft);
+    display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:0}
+  .rond span{width:52px;height:52px;border-radius:50%;background:var(--card);display:flex;align-items:center;
+    justify-content:center;font-size:21px;box-shadow:0 2px 8px rgba(44,51,39,.1)}
+  .rond.gros span{width:72px;height:72px;font-size:28px;background:var(--matcha);color:#fff;
+    box-shadow:0 4px 14px rgba(127,168,107,.45)}
+  .rond.gros{color:var(--matcha-d);font-size:12.5px}
+  .actions .hidden{display:none}
+  .rond.live span{background:var(--rose-d);animation:pulse 1.15s ease-out infinite}
+  .pdock{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom,0px));z-index:19;
+    background:rgba(246,244,236,.95);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:9px 14px}
+  .pdock .inner{max-width:620px;margin:0 auto;display:flex;gap:8px}
+  .pb{flex:1;font-family:inherit;font-size:14.5px;font-weight:700;padding:12px 6px;border-radius:999px;
+    cursor:pointer;border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft)}
+  .pb.retour{flex:0 0 92px}
+  .pb.rate{border-color:var(--rose);background:var(--rose-l);color:var(--rose-d)}
+  .pb.juste{border-color:var(--matcha);background:var(--matcha);color:#fff}
   .seal{position:absolute;top:14px;right:14px;width:34px;height:34px;background:var(--rose-l);color:var(--rose-d);
     font-family:var(--jp);font-size:16px;display:flex;align-items:center;justify-content:center;border-radius:12px}
-  .emoji{font-size:74px;line-height:1;margin:4px 0 12px}
-  .fr{font-size:22px;font-weight:700;margin:0 0 4px}
+  .emoji{font-size:58px;line-height:1;margin:2px 0 8px}
+  .fr{font-size:20px;font-weight:700;margin:0 0 3px;line-height:1.25}
   .hint{font-size:13.5px;color:var(--ink-soft);margin:0}
-  .answer{margin:16px 0 0;min-height:74px}
-  .ja{font-family:var(--jp);font-size:32px;line-height:1.35;margin:0;font-weight:600}
+  .answer{margin:12px 0 0;min-height:62px}
+  .ja{font-family:var(--jp);font-size:28px;line-height:1.3;margin:0;font-weight:600}
   .romaji{font-size:15.5px;color:var(--ink-soft);margin:2px 0 0}
-  .veil{color:var(--ink-soft);font-size:14.5px;padding:22px 0}
-  .mic{
-    width:84px;height:84px;border-radius:50%;border:none;background:var(--matcha);color:#fff;
-    font-size:32px;cursor:pointer;margin:18px auto 6px;display:block;
-    box-shadow:0 4px 14px rgba(127,168,107,.4);
-  }
-  .mic.live{background:var(--rose-d);animation:pulse 1.15s ease-out infinite}
+  .veil{color:var(--ink-soft);font-size:14px;padding:18px 0}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(201,124,140,.5)}100%{box-shadow:0 0 0 24px rgba(201,124,140,0)}}
-  @media (prefers-reduced-motion:reduce){.mic.live{animation:none}}
-  .status{min-height:44px;font-size:14.5px;color:var(--ink-soft);margin:4px 0 0}
+  @media (prefers-reduced-motion:reduce){.rond.live span{animation:none}}
+  .status{min-height:34px;font-size:14px;color:var(--ink-soft);margin:6px 0 72px}
   .status .heard{font-family:var(--jp);color:var(--ink)}
   .status.good{color:var(--ok);font-weight:700}
   .status.near{color:var(--rose-d)}
+  .status .diag{display:block;margin-top:8px;padding:10px 12px;border-radius:12px;
+    background:var(--matcha-l);color:var(--ink);font-size:13.5px;line-height:1.4;text-align:left}
+  .status .diag b{font-family:var(--jp);font-size:17px;color:var(--matcha-d);margin-right:5px}
   .kbd{display:flex;gap:8px;margin:16px 0 4px}
   .kbd input{
     flex:1;min-width:0;font-family:var(--jp);font-size:18px;padding:12px 14px;
@@ -435,31 +453,38 @@
 
   <!-- ENTRAÎNEMENT -->
   <section id="practice" class="hidden">
+    <div class="pbar"><i id="barFill" style="width:0%"></i></div>
+    <p class="pcount" id="pCount"></p>
+
     <div class="stage">
       <div class="seal" id="seal"></div>
       <div class="emoji" id="emoji"></div>
       <p class="fr" id="fr"></p>
       <p class="hint" id="hint"></p>
-      <div class="answer" id="answer"><p class="veil">Dis-le en japonais, puis appuie sur le micro.</p></div>
-      <button class="mic" id="mic" title="Parler">🎙</button>
-      <div class="opts hidden" id="ecouteRow" style="margin-top:16px"></div>
+      <div class="answer" id="answer"></div>
+      <div class="opts hidden" id="ecouteRow"></div>
       <div class="kbd hidden" id="kbdRow">
-        <input id="kbdInput" type="text" lang="ja" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="🎤 du clavier, ou tape en rōmaji">
+        <input id="kbdInput" type="text" lang="ja" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="🎤 du clavier, ou rōmaji">
         <button class="act" id="kbdCheck">Vérifier</button>
       </div>
-      <p class="status" id="status"></p>
     </div>
-    <div class="bar"><i id="barFill" style="width:0%"></i></div>
-    <div class="row" style="margin-top:14px">
-      <button class="act ghost" id="listen">Écouter le modèle</button>
-      <button class="act ghost" id="reveal">Montrer la réponse</button>
-      <button class="act ghost" id="skip">Passer</button>
-      <button class="act ghost" id="quit">Retour</button>
+
+    <div class="actions">
+      <button class="rond" id="listen"><span>♪</span>Écouter</button>
+      <button class="rond gros" id="mic"><span>🎙</span>Parler</button>
+      <button class="rond" id="reveal"><span>👁</span>Voir</button>
     </div>
-    <div class="row hidden" id="selfRow">
-      <button class="act" id="selfOk">Je l'ai bien dit</button>
-      <button class="act ghost" id="selfNo">À revoir</button>
+
+    <p class="status" id="status"></p>
+
+    <div class="pdock">
+      <div class="inner">
+        <button class="pb retour" id="quit">← Retour</button>
+        <button class="pb rate" id="skip">À revoir</button>
+        <button class="pb juste" id="selfOk">J'ai bien dit</button>
+      </div>
     </div>
+    <div class="hidden" id="selfRow"><button id="selfNo"></button></div>
   </section>
 
   <!-- KANA -->
@@ -561,6 +586,116 @@ function best(heardList,accepts){
     if(norm(h).includes(norm(a))&&norm(a).length>=2) s=Math.max(s,.95);
   }
   return s;
+}
+
+/* ---------------- diagnostic de prononciation ----------------
+   On ne dispose que du texte reconnu, jamais du son. On compare donc more à
+   more ce qui était visé et ce qui a été entendu, et on rattache l'écart aux
+   confusions typiques des francophones. */
+
+const ROWS={a:"あかさたなはまやらわがざだばぱ",i:"いきしちにひみ　りゐぎじぢびぴ",
+            u:"うくすつぬふむゆるんぐずづぶぷ",e:"えけせてねへめ　れゑげぜでべぺ",
+            o:"おこそとのほもよろをごぞどぼぽ"};
+const SOURDE="かきくけこさしすせそたちつてとはひふへほ";
+const SONORE="がぎぐげござじずぜぞだぢづでどばびぶべぼ";
+const LIGNE=c=>{
+  const t={"あいうえお":"voyelle","かきくけこ":"K","さしすせそ":"S","たちつてと":"T","なにぬねの":"N",
+           "はひふへほ":"H","まみむめも":"M","やゆよ":"Y","らりるれろ":"R","わを":"W",
+           "がぎぐげご":"G","ざじずぜぞ":"Z","だぢづでど":"D","ばびぶべぼ":"B","ぱぴぷぺぽ":"P"};
+  for(const k in t)if(k.includes(c))return t[k];
+  return null;
+};
+const VOYELLE=c=>{for(const v in ROWS)if(ROWS[v].includes(c))return v;return null;};
+
+function mores(txt){
+  const s=kata2hira(String(txt||"")).replace(/[ー～\s、。！？!?,.「」]/g,m=>m==="ー"?"ー":"");
+  const out=[];
+  for(let i=0;i<s.length;i++){
+    const c=s[i], suiv=s[i+1];
+    if(suiv&&"ゃゅょぁぃぅぇぉ".includes(suiv)){out.push(c+suiv);i++;}
+    else out.push(c);
+  }
+  return out;
+}
+
+function aligner(a,b){
+  const n=a.length,m=b.length;
+  const d=Array.from({length:n+1},(_,i)=>Array.from({length:m+1},(_,j)=>i===0?j:(j===0?i:0)));
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  const ops=[];let i=n,j=m;
+  while(i>0||j>0){
+    if(i>0&&j>0&&d[i][j]===d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)){
+      if(a[i-1]!==b[j-1])ops.push({t:"sub",cible:a[i-1],entendu:b[j-1],pos:i-1});
+      i--;j--;
+    }else if(i>0&&d[i][j]===d[i-1][j]+1){ops.push({t:"del",cible:a[i-1],pos:i-1});i--;}
+    else {ops.push({t:"ins",entendu:b[j-1],pos:i});j--;}
+  }
+  return ops.reverse();
+}
+
+function formeKana(c){
+  const kanji=/[\u4e00-\u9faf]/;
+  const cand=(c.accept||[]).filter(x=>x&&!kanji.test(x));
+  return cand.sort((a,b)=>b.length-a.length)[0]||null;
+}
+function diagnostiquer(cible,entendu){
+  if(!cible||!entendu)return null;
+  const a=mores(cible), b=mores(entendu);
+  const ops=aligner(a,b);
+  if(!ops.length)return null;
+
+  // priorité : un petit kana détaché en deux temps, que l'alignement peut mal situer
+  const gros={"ゃ":"や","ゅ":"ゆ","ょ":"よ"};
+  for(const mo of a){
+    if(mo.length===2&&gros[mo[1]]){
+      const detache=mo[0]+gros[mo[1]];
+      if(!b.includes(mo)&&entendu.includes(detache))
+        return {q:mo,m:"Tu as détaché le petit kana : "+mo+" se prononce d'un seul temps, pas en deux. « kyo », pas « ki-yo »."};
+    }
+  }
+
+  for(const o of ops){
+    const c=o.cible, e=o.entendu;
+
+    if(o.t==="sub"){
+      if(c==="つ"&&"すしちず".includes(e))
+        return {q:"つ",m:"Ton つ est passé pour un す. Ce n'est pas « tsou » : la langue touche les dents et libère un « ts » bref, comme dans « tsé-tsé », avec un う à peine arrondi."};
+      if("らりるれろ".includes(c)&&("だぢづでどなにぬねのわ".includes(e)||LIGNE(e)==="D"))
+        return {q:c,m:"Ton "+c+" a été entendu "+e+". Le R japonais est un battement unique de la langue contre le palais, proche du « r » espagnol de « pero » — ni le R français raclé, ni un D appuyé."};
+      if(c==="ふ"&&"ほひふぷ".includes(e))
+        return {q:"ふ",m:"Le ふ n'est ni « fou » ni « hou » : c'est un souffle entre les lèvres à peine rapprochées, sans que la lèvre touche les dents."};
+      if(SOURDE.includes(c)&&SONORE.includes(e))
+        return {q:c,m:"Tu as sonorisé "+c+" en "+e+". En japonais la différence est nette et change le mot : c'est l'accent qui porte, pas la corde vocale."};
+      if(SONORE.includes(c)&&SOURDE.includes(e))
+        return {q:c,m:"Ton "+c+" a perdu sa sonorité et sonne "+e+". Les deux petits traits changent vraiment le son."};
+      if(VOYELLE(c)&&VOYELLE(e)&&LIGNE(c)===LIGNE(e))
+        return {q:c,m:"La consonne est bonne, la voyelle non : "+c+" entendu "+e+". Les cinq voyelles japonaises sont franches et jamais nasalisées."};
+      if(c.length===2&&e.length===1)
+        return {q:c,m:"Le petit kana de "+c+" s'est perdu : "+c+" se dit d'un seul temps, pas en deux comme « ki-yo »."};
+    }
+
+    if(o.t==="del"){
+      if(c==="っ")
+        return {q:"っ",m:"Tu as sauté la petite pause de っ. Elle dure un temps plein : on bloque le son avant de relâcher, comme dans « gakkō »."};
+      if(c==="ん")
+        return {q:"ん",m:"Le ん a disparu. C'est une more entière, tenue et nasale, pas un simple « n » collé à la syllabe d'avant."};
+      const prec=o.pos>0?a[o.pos-1]:null;
+      const prolonge = prec && (
+        VOYELLE(prec)===VOYELLE(c) ||
+        (c==="う"&&(VOYELLE(prec)==="o"||VOYELLE(prec)==="u")) ||
+        (c==="い"&&VOYELLE(prec)==="e"));
+      if(c==="ー"||prolonge)
+        return {q:"voyelle longue",m:"Tu as écourté une voyelle longue. Tiens-la deux temps, sans monter ni descendre : おばさん est une dame, おばあさん une grand-mère."};
+      return {q:c,m:"La more "+c+" n'a pas été entendue. Chaque more dure le même temps : n'en avale aucune, même à la fin."};
+    }
+
+    if(o.t==="ins"&&"ゃゅょやゆよ".includes(o.entendu)&&o.pos>0)
+      return {q:a[o.pos-1],m:"Tu as détaché le petit kana : "+a[o.pos-1]+" se prononce d'un seul temps. « kyo », pas « ki-yo »."};
+    if(o.t==="ins")
+      return {q:e,m:"Une more de trop a été entendue ("+e+"). Souvent une voyelle ajoutée par réflexe, ou un petit kana prononcé en deux temps au lieu d'un."};
+  }
+  return null;
 }
 
 /* ---------------- progression ---------------- */
@@ -809,6 +944,8 @@ function buildDeck(){
 }
 function show(){
   if(idx>=deck.length){endSession();return;}
+  document.querySelector(".actions").classList.remove("hidden");
+  document.querySelector(".pdock").classList.remove("hidden");
   cur=deck[idx];revealed=false;
   $("seal").textContent=CATS[cur.cat].kanji;
   $("emoji").textContent=cur.emoji;
@@ -818,8 +955,9 @@ function show(){
   $("answer").innerHTML='<p class="veil">Dis-le en japonais à voix haute.</p>';
   setStatus(mode==="self"?"Puis révèle la réponse et juge.":"","");
   $("barFill").style.width=(idx/deck.length*100)+"%";
-  $("selfRow").classList.toggle("hidden",mode!=="self");
+  $("pCount").textContent=`Carte ${idx+1} sur ${deck.length}`;
   $("mic").classList.toggle("hidden",mode!=="mic");
+  $("listen").classList.toggle("hidden",mode==="ecoute");
   $("kbdRow").classList.toggle("hidden",mode!=="kbd");
   $("ecouteRow").classList.toggle("hidden",mode!=="ecoute");
   $("kbdInput").value="";
@@ -915,8 +1053,9 @@ function endSession(){
   $("hint").textContent="お疲れさま — repose-toi ou relance un tour.";
   $("seal").textContent="了";
   setStatus("","");
-  $("mic").classList.add("hidden");
-  $("selfRow").classList.add("hidden");
+  $("pCount").textContent="";
+  document.querySelector(".actions").classList.add("hidden");
+  document.querySelector(".pdock").classList.add("hidden");
   paintCats();
 }
 
@@ -934,19 +1073,29 @@ function checkTyped(){
   if(s>=.8){
     revealAnswer();scoreCard(true);setStatus("C'est ça.","good");next(1400);
   }else if(s>=.55){
-    setStatus("Presque — écoute le modèle et redis-le.","near");speak(cur.ja);
+    setStatus("Presque."+pourquoi(txt),"near");speak(cur.ja);
   }else{
-    setStatus("Pas encore. Réessaie, ou montre la réponse.","");
+    setStatus("Pas encore."+pourquoi(txt),"");
   }
 }
 $("kbdCheck").onclick=checkTyped;
 $("kbdInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkTyped();});
 $("quit").onclick=()=>history.back();
-$("skip").onclick=()=>next();
+$("skip").onclick=()=>{
+  if(!cur)return;
+  if(!revealed)revealAnswer();
+  scoreCard(false);
+  setStatus("Notée comme à revoir — elle reviendra bientôt.","");
+  next(1500);
+};
 $("reveal").onclick=()=>{if(cur)revealAnswer();};
 $("listen").onclick=()=>{if(cur)speak(cur.ja);};
-$("selfOk").onclick=()=>{if(!revealed)revealAnswer();scoreCard(true);setStatus("Bien joué.","good");next(700);};
-$("selfNo").onclick=()=>{if(!revealed)revealAnswer();scoreCard(false);setStatus("On la reverra tout à l'heure.","");next(900);};
+$("selfOk").onclick=()=>{
+  if(!cur)return;
+  if(!revealed)revealAnswer();
+  scoreCard(true);setStatus("Bien joué.","good");next(1100);
+};
+$("selfNo").onclick=()=>{};
 
 $("mic").onclick=()=>{
   if(!SR){showWarn("nosr");return;}
@@ -959,6 +1108,12 @@ $("mic").onclick=()=>{
     rec.start();
   }catch(e){listening=false;$("mic").classList.remove("live");}
 };
+function pourquoi(entendu){
+  const ref=formeKana(cur);
+  if(!ref)return "";
+  const d=diagnostiquer(ref,entendu);
+  return d?`<span class="diag"><b>${d.q}</b> ${d.m}</span>`:"";
+}
 function handleHeard(alts){
   const s=best(alts,cur.accept);
   const heard=`<span class="heard">${alts[0]}</span>`;
@@ -967,10 +1122,10 @@ function handleHeard(alts){
     setStatus("Compris — "+heard,"good");
     next(1400);
   }else if(s>=.55){
-    setStatus("Presque : j'ai entendu "+heard+". Écoute le modèle et réessaie.","near");
+    setStatus("Presque : j'ai entendu "+heard+"."+pourquoi(alts[0]),"near");
     speak(cur.ja);
   }else{
-    setStatus("J'ai entendu "+heard+". Réessaie, ou montre la réponse.","");
+    setStatus("J'ai entendu "+heard+"."+pourquoi(alts[0]),"");
   }
 }
 
