@@ -248,17 +248,23 @@
   ul.perso button{background:none;border:none;color:var(--rose-d);font-size:19px;cursor:pointer;padding:0 4px;font-family:inherit}
   small.note{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:22px;max-width:60ch}
   #splash{
-    position:fixed;inset:0;z-index:100;background:#FAEBE6;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    position:fixed;inset:0;z-index:100;background:#F7DAD4 url("splash.jpg") center/cover no-repeat;
+    display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));
     transition:opacity .55s ease;
   }
-  #splash img{width:min(56vw,230px);height:auto;animation:apparait .7s ease both}
-  #splash p{font-family:var(--jp);font-size:15px;letter-spacing:.22em;color:#C98A95;margin:0;
-    animation:apparait .7s ease .22s both}
+  #splash .jauge{
+    width:min(52vw,210px);height:7px;border-radius:99px;overflow:hidden;
+    background:rgba(255,255,255,.62);box-shadow:0 1px 6px rgba(120,70,70,.16);
+  }
+  #splash .jauge i{
+    display:block;height:100%;width:0;border-radius:99px;background:#D98A98;
+    animation:remplir 1.9s cubic-bezier(.35,.1,.25,1) forwards;
+  }
+  @keyframes remplir{from{width:0}to{width:100%}}
   #splash.parti{opacity:0;pointer-events:none}
-  @keyframes apparait{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){
-    #splash img,#splash p{animation:none}
+    #splash .jauge i{animation:none;width:100%}
     #splash{transition:none}
   }
   .sakura{position:fixed;right:-6px;bottom:-10px;width:150px;height:150px;z-index:0;
@@ -412,8 +418,7 @@
 </div>
 
 <div id="splash">
-  <img src="logo.png" alt="Nihongo de voyage">
-  <p>旅の日本語</p>
+  <div class="jauge"><i></i></div>
 </div>
 
 <div class="sakura" aria-hidden="true">
