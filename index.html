@@ -36,35 +36,65 @@
     background:var(--bg);color:var(--ink);font-family:var(--sans);
     font-size:17px;font-weight:500;line-height:1.55;-webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:620px;margin:0 auto;padding:22px 18px 120px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-  .logo{height:74px;width:auto;flex:0 0 auto;display:block}
-  @media (max-width:360px){.logo{height:64px}}
-  .score{font-size:12.5px;color:var(--ink-soft);text-align:right;line-height:1.3;max-width:48%}
-  .score b{font-weight:700;color:var(--matcha-d)}
+  .wrap{max-width:620px;margin:0 auto;padding:22px 18px 110px}
+  header#hero{position:relative;margin:-22px -18px 18px;padding:14px 18px 16px;overflow:hidden;
+    border-radius:0 0 26px 26px;background:#FBEDE8}
+  .heroimg{position:absolute;inset:0;background:url("splash.jpg") center 18% / cover no-repeat;opacity:.9}
+  .heroimg::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(251,237,232,.15) 0%,rgba(251,237,232,.72) 58%,rgba(251,237,232,.96) 100%)}
+  header#hero .logo,header#hero .salut{position:relative;z-index:1}
+  .logo{height:88px;width:auto;display:block;margin-bottom:6px}
+  .salut{display:flex;flex-direction:column}
+  .salut .jp{font-family:var(--jp);font-size:21px;font-weight:600;color:var(--matcha-d);margin:0}
+  .salut .fr{font-size:15px;color:var(--ink-soft);margin:1px 0 0}
+  .salut .chiffres{font-size:12.5px;color:var(--ink-soft);margin:7px 0 0;align-self:flex-end;text-align:right;line-height:1.3}
+  .salut .chiffres b{color:var(--matcha-d);font-weight:700}
+  @media (max-width:360px){.logo{height:74px}}
   .hidden{display:none}
 
   /* --- grandes tuiles d'accueil --- */
-  .tdj{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
-  .tdj div{background:var(--card);border-radius:14px;padding:12px 8px;text-align:center;
-    box-shadow:0 1px 6px rgba(44,51,39,.05)}
-  .tdj b{display:block;font-size:22px;font-weight:700;color:var(--matcha-d);line-height:1.1}
-  .tdj span{font-size:11.5px;color:var(--ink-soft);line-height:1.25;display:block;margin-top:3px}
-  button.continuer{width:100%;margin-bottom:14px;font-size:17px;padding:15px}
+  .tdj{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:13px;
+    background:var(--card);border-radius:18px;padding:13px 4px;box-shadow:0 2px 10px rgba(44,51,39,.06)}
+  .tdj div{text-align:center;padding:0 6px;position:relative}
+  .tdj div+div::before{content:"";position:absolute;left:0;top:14%;bottom:14%;width:1px;background:var(--line)}
+  .tdj i{display:block;width:34px;height:34px;margin:0 auto 6px;border-radius:11px;font-style:normal;
+    font-size:17px;line-height:34px}
+  .tdj div:nth-child(1) i{background:var(--matcha-l)}
+  .tdj div:nth-child(2) i{background:var(--rose-l)}
+  .tdj div:nth-child(3) i{background:#FBEFD9}
+  .tdj b{display:block;font-size:21px;font-weight:700;color:var(--ink);line-height:1.1}
+  .tdj span{font-size:11.5px;color:var(--ink-soft);line-height:1.25;display:block;margin-top:2px}
+
+  button.grande{
+    position:relative;width:100%;margin-bottom:14px;border:none;cursor:pointer;font-family:inherit;
+    background:linear-gradient(135deg,var(--matcha) 0%,var(--matcha-d) 100%);color:#fff;
+    border-radius:20px;padding:17px 62px 17px 19px;text-align:left;display:flex;flex-direction:column;gap:2px;
+    box-shadow:0 4px 14px rgba(76,107,67,.28);
+  }
+  button.grande .sur{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;opacity:.82}
+  button.grande .titre{font-size:20px;font-weight:700;line-height:1.2}
+  button.grande .sous{font-size:13px;opacity:.85}
+  .fleche{position:absolute;right:16px;top:50%;transform:translateY(-50%);
+    width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--matcha-d);
+    display:flex;align-items:center;justify-content:center;font-size:18px}
   .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
   .tile{
-    border:none;border-radius:var(--r);padding:14px 13px 15px;cursor:pointer;text-align:left;
-    font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:9px;width:100%;
+    position:relative;border:none;border-radius:20px;padding:14px 13px 46px;cursor:pointer;text-align:left;
+    font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%;
     min-width:0;box-shadow:0 2px 10px rgba(44,51,39,.06);
   }
   .tile .ic{
-    width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;
-    font-family:var(--jp);font-size:21px;font-weight:700;flex:0 0 auto;
+    width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--jp);font-size:22px;font-weight:700;flex:0 0 auto;
   }
-  .tile .tx{display:flex;flex-direction:column;min-width:0}
   .tile .tt{font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.2}
-  .tile.t4{background:var(--card)}
-  .tile.t4 .ic{background:var(--bg);color:var(--matcha-d)}
+  .tile .td{font-size:12px;color:var(--ink-soft);line-height:1.3}
+  .tile .fleche{right:12px;top:auto;bottom:11px;transform:none;width:32px;height:32px;font-size:16px;
+    background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(44,51,39,.1)}
+  .tile.t3{background:#FBEFD9}
+  .tile.t3 .ic{background:#F0D9A8;color:#7A5A16}
+  .tile.t4{background:#DFEDE9}
+  .tile.t4 .ic{background:#BBD8D0;color:#2E5A50}
   .tiles{align-items:stretch}
   .tile.t1{background:var(--matcha-l)}
   .tile.t1 .ic{background:var(--matcha);color:#fff}
@@ -108,7 +138,7 @@
   .dock{
     position:fixed;left:0;right:0;bottom:0;background:rgba(246,244,236,.94);
     backdrop-filter:blur(8px);border-top:1px solid var(--line);
-    padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));z-index:20;
+    padding:12px 18px 12px;bottom:calc(62px + env(safe-area-inset-bottom,0px));z-index:20;
   }
   .dock .inner{max-width:620px;margin:0 auto;display:flex;gap:10px;align-items:center}
   .dock button.act{flex:1;font-size:17px;padding:15px 20px}
@@ -267,7 +297,20 @@
     #splash .jauge i{animation:none;width:100%}
     #splash{transition:none}
   }
-  .sakura{position:fixed;right:-6px;bottom:-10px;width:150px;height:150px;z-index:0;
+  #barre{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);
+    background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+    padding:7px 4px calc(7px + env(safe-area-inset-bottom,0px));
+  }
+  #barre button{
+    background:none;border:none;font-family:inherit;font-size:11px;font-weight:600;color:var(--ink-soft);
+    display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 2px;
+  }
+  #barre button span{font-size:19px;line-height:1}
+  #barre button span.jp{font-family:var(--jp);font-size:17px}
+  #barre button.on{color:var(--matcha-d)}
+  #barre button.on span{transform:translateY(-1px)}
+  .sakura{position:fixed;right:-6px;bottom:58px;width:150px;height:150px;z-index:0;
     pointer-events:none;opacity:.5}
   .sakura svg{width:100%;height:100%;overflow:visible}
   .sakura .pe ellipse{fill:var(--rose)}
@@ -282,9 +325,14 @@
 </style>
 
 <div class="wrap">
-  <header>
+  <header id="hero">
+    <div class="heroimg"></div>
     <img src="logo.png" class="logo" alt="Nihongo de voyage">
-    <div class="score" id="score"></div>
+    <div class="salut">
+      <p class="jp" id="salutJp"></p>
+      <p class="fr" id="salutFr"></p>
+      <p class="chiffres" id="score"></p>
+    </div>
   </header>
 
   <div id="warn" class="warn hidden"></div>
@@ -292,29 +340,45 @@
   <!-- ACCUEIL -->
   <section id="home">
     <div class="tdj" id="tdj"></div>
-    <button class="act continuer hidden" id="continuer"></button>
+
+    <button class="grande hidden" id="continuer">
+      <span class="sur">On commence ?</span>
+      <span class="titre" id="contTitre"></span>
+      <span class="sous" id="contSous"></span>
+      <span class="fleche">→</span>
+    </button>
+
     <div class="tiles">
       <button class="tile t1" id="goKana">
         <span class="ic">あ</span>
-        <span class="tx"><span class="tt">Hiragana & katakana</span></span>
+        <span class="tt">Hiragana<br>& katakana</span>
+        <span class="td">Les bases pour lire et écrire</span>
+        <span class="fleche">→</span>
       </button>
       <button class="tile t2" id="goVocab">
         <span class="ic">旅</span>
-        <span class="tx"><span class="tt">Vocabulaire de voyage</span></span>
+        <span class="tt">Vocabulaire<br>de voyage</span>
+        <span class="td">Les mots pour ton séjour</span>
+        <span class="fleche">→</span>
       </button>
       <button class="tile t3" id="goProgres">
         <span class="ic">結</span>
-        <span class="tx"><span class="tt">Ma progression</span></span>
+        <span class="tt">Ma<br>progression</span>
+        <span class="td">Ce qui tient, ce qui résiste</span>
+        <span class="fleche">→</span>
       </button>
       <button class="tile t4" id="goDrills">
         <span class="ic">口</span>
-        <span class="tx"><span class="tt">Prononciation</span></span>
+        <span class="tt">Prononciation</span>
+        <span class="td">Écoute et répète</span>
+        <span class="fleche">→</span>
       </button>
     </div>
+
     <div class="row" style="margin-top:14px">
       <button class="act ghost hidden" id="install">Installer sur l'écran d'accueil</button>
     </div>
-    <small class="note">Progression enregistrée automatiquement. Les mots ratés reviennent plus souvent ; un mot est acquis après trois réussites.</small>
+    <small class="note">Progression enregistrée automatiquement. Les cartes ratées reviennent plus souvent, et chaque réussite repousse la prochaine révision.</small>
   </section>
 
   <!-- VOCABULAIRE : choix des situations -->
@@ -420,6 +484,14 @@
 <div id="splash">
   <div class="jauge"><i></i></div>
 </div>
+
+<nav id="barre">
+  <button data-e="home"><span>⌂</span>Accueil</button>
+  <button data-e="kana"><span class="jp">あ</span>Kana</button>
+  <button data-e="vocab"><span class="jp">旅</span>Mots</button>
+  <button data-e="progres"><span>▥</span>Progrès</button>
+  <button data-e="drills"><span>♪</span>Oral</button>
+</nav>
 
 <div class="sakura" aria-hidden="true">
   <svg viewBox="0 0 160 160">
@@ -534,7 +606,8 @@ function paintScore(){
   const v=Object.values(prog.box||{});
   const done=v.filter(b=>b>=SEUIL).length;
   const encours=v.filter(b=>b>0&&b<SEUIL).length;
-  $("score").innerHTML=`<b>${done}</b>/${W.length} acquis<br>série <b>${prog.streak||0}</b>`;
+  const sc=$("score");
+  if(sc)sc.innerHTML=`<b>${done}</b> / ${W.length} acquis<br>série <b>${prog.streak||0}</b>`;
 }
 
 /* ---------------- voix ---------------- */
@@ -589,20 +662,27 @@ function showWarn(kind){
 
 /* ---------------- accueil : chiffres du jour ---------------- */
 function paintAccueil(){
+  const h=new Date().getHours();
+  $("salutJp").textContent = h<10?"おはよう！" : h<18?"こんにちは！" : "こんばんは！";
+  $("salutFr").textContent = h<10?"Prête à commencer la journée ?"
+                           : h<18?"Prête à découvrir le japonais ?"
+                           : "Un peu de japonais avant la nuit ?";
   const c=comptesDuJour();
   const acquis=Object.values(prog.box||{}).filter(b=>b>=SEUIL).length;
   const serie=(prog.jours&&prog.jours.serie)||0;
   $("tdj").innerHTML=
-    `<div><b>${c.du}</b><span>à réviser<br>aujourd'hui</span></div>`+
-    `<div><b>${acquis}</b><span>cartes<br>acquises</span></div>`+
-    `<div><b>${serie}</b><span>jour${serie>1?"s":""}<br>d'affilée</span></div>`;
+    `<div><i>📅</i><b>${c.du}</b><span>à réviser<br>aujourd'hui</span></div>`+
+    `<div><i>🗂️</i><b>${acquis}</b><span>cartes<br>acquises</span></div>`+
+    `<div><i>⭐</i><b>${serie}</b><span>jour${serie>1?"s":""}<br>d'affilée</span></div>`;
   const b=$("continuer");
   if(c.du){
     b.classList.remove("hidden");
-    b.textContent=`Continuer — ${c.du} carte${c.du>1?"s":""} à revoir`;
+    $("contTitre").textContent=`Reprendre — ${c.du} carte${c.du>1?"s":""}`;
+    $("contSous").textContent="Ce qui est en train de s'effacer, d'abord.";
   }else if(c.jamais){
     b.classList.remove("hidden");
-    b.textContent="Découvrir de nouvelles cartes";
+    $("contTitre").textContent="Découvrir de nouvelles cartes";
+    $("contSous").textContent="Apprends pas à pas, à ton rythme.";
   }else b.classList.add("hidden");
 }
 $("continuer").onclick=()=>{
@@ -616,7 +696,22 @@ function montrer(id){
   ECRANS.forEach(e=>$(e).classList.toggle("hidden",e!==id));
   window.scrollTo(0,0);
   if(id==="home")paintAccueil();
+  $("hero").classList.toggle("hidden",id!=="home");
+  document.querySelectorAll("#barre button").forEach(b=>{
+    const cible=b.dataset.e;
+    b.classList.toggle("on", cible===id || (id==="practice"&&cible==="vocab"));
+  });
 }
+document.querySelectorAll("#barre button").forEach(b=>{
+  b.onclick=()=>{
+    const e=b.dataset.e;
+    if(e==="home"){ecran("home");return;}
+    if(e==="kana"){kopen();return;}
+    if(e==="vocab"){ecran("vocab");paintCats();return;}
+    if(e==="progres"){ecran("progres");paintProgres();return;}
+    if(e==="drills"){ecran("drills");return;}
+  };
+});
 function pousser(){ try{history.pushState({n:Date.now()},"");}catch(e){} }
 function ecran(id){ montrer(id); pousser(); }
 // Le bouton retour du téléphone remonte d'un écran au lieu de quitter l'appli.
