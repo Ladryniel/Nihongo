@@ -37,16 +37,17 @@
     font-size:17px;font-weight:500;line-height:1.55;-webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:620px;margin:0 auto;padding:22px 18px 110px}
-  header#hero{position:relative;margin:-22px -18px 16px;padding:0 0 2px}
+  header#hero{position:relative;margin:-22px -18px 12px;padding:0}
   .banniere{position:relative;width:100%;aspect-ratio:1018/258;
     background:url("bandeau.jpg") center top / 100% auto no-repeat}
   .banniere::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:42%;
     background:linear-gradient(180deg,rgba(246,244,236,0) 0%,rgba(246,244,236,.72) 55%,var(--bg) 100%)}
-  header#hero .salut{position:relative;z-index:1;padding:0 18px;margin-top:-10px}
-  .salut{display:flex;flex-direction:column}
-  .salut .jp{font-family:var(--jp);font-size:21px;font-weight:600;color:var(--matcha-d);margin:0}
-  .salut .fr{font-size:15px;color:var(--ink-soft);margin:1px 0 0}
-  .salut .chiffres{font-size:12.5px;color:var(--ink-soft);margin:7px 0 0;align-self:flex-end;text-align:right;line-height:1.3}
+  header#hero .salut{position:relative;z-index:1;padding:0 18px;margin-top:-14px}
+  .salut{display:grid;grid-template-columns:1fr auto;align-items:baseline;column-gap:10px}
+  .salut .jp{font-family:var(--jp);font-size:19px;font-weight:600;color:var(--matcha-d);margin:0}
+  .salut .fr{font-size:13.5px;color:var(--ink-soft);margin:0;grid-column:1}
+  .salut .chiffres{font-size:11px;color:var(--ink-soft);margin:0;text-align:right;line-height:1.3;
+    grid-column:2;grid-row:1/3;align-self:center;white-space:nowrap}
   .salut .chiffres b{color:var(--matcha-d);font-weight:700}
   @media (max-width:360px){.logo{height:74px}}
   .hidden{display:none}
@@ -67,20 +68,22 @@
   button.grande{
     position:relative;width:100%;margin-bottom:14px;border:none;cursor:pointer;font-family:inherit;
     background:#7E9E72 url("bandeau-vert.jpg") center/100% 100% no-repeat;color:#fff;
-    border-radius:20px;padding:16px 86px 16px 86px;text-align:left;display:flex;flex-direction:column;gap:2px;
-    min-height:92px;justify-content:center;box-shadow:0 4px 14px rgba(76,107,67,.24);
-    text-shadow:0 1px 3px rgba(40,60,36,.3);
+    aspect-ratio:2196/411;                 /* proportion exacte de l'image : aucun étirement */
+    border-radius:18px;padding:0 64px 0 72px;text-align:left;
+    display:flex;flex-direction:column;gap:0;justify-content:center;
+    box-shadow:0 3px 12px rgba(76,107,67,.22);text-shadow:0 1px 3px rgba(40,60,36,.32);
   }
+  @media (max-width:420px){button.grande{padding:0 56px 0 62px}}
   button.grande .fleche{display:none}
-  button.grande .sur{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;opacity:.82}
-  button.grande .titre{font-size:20px;font-weight:700;line-height:1.2}
-  button.grande .sous{font-size:13px;opacity:.85}
+  button.grande .sur{display:none}
+  button.grande .titre{font-size:16.5px;font-weight:700;line-height:1.18}
+  button.grande .sous{font-size:11.5px;opacity:.88;line-height:1.2;margin-top:1px}
   .fleche{position:absolute;right:16px;top:50%;transform:translateY(-50%);
     width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--matcha-d);
     display:flex;align-items:center;justify-content:center;font-size:18px}
   .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
   .tile{
-    position:relative;border:none;border-radius:20px;padding:14px 13px 46px;cursor:pointer;text-align:left;
+    position:relative;border:none;border-radius:20px;padding:14px 13px 16px;cursor:pointer;text-align:left;
     font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%;
     min-width:0;box-shadow:0 2px 10px rgba(44,51,39,.06);
   }
@@ -90,8 +93,7 @@
   }
   .tile .tt{font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.2}
   .tile .td{font-size:12px;color:var(--ink-soft);line-height:1.3}
-  .tile .fleche{right:12px;top:auto;bottom:11px;transform:none;width:32px;height:32px;font-size:16px;
-    background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(44,51,39,.1)}
+  .tile .fleche{display:none}   /* la flèche est déjà dessinée dans les illustrations */
   .tile.t3 .ic{background:#F0D9A8;color:#7A5A16}
   .tile.t4 .ic{background:#BBD8D0;color:#2E5A50}
   .tiles{align-items:stretch}
