@@ -201,6 +201,7 @@
     border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);
   }
   .kbd input:focus{outline:none;border-color:var(--matcha)}
+  .kbd input::placeholder{font-family:var(--sans);font-size:12.5px;font-style:italic;color:#B8B4A8;opacity:1}
   .bar{height:6px;background:var(--line);margin:18px 0 8px;border-radius:99px;position:relative;overflow:hidden}
   .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--matcha);transition:width .3s;border-radius:99px}
 
@@ -464,7 +465,7 @@
       <div class="answer" id="answer"></div>
       <div class="opts hidden" id="ecouteRow"></div>
       <div class="kbd hidden" id="kbdRow">
-        <input id="kbdInput" type="text" lang="ja" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="🎤 du clavier, ou rōmaji">
+        <input id="kbdInput" type="text" lang="ja" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="dicte avec le micro du clavier, ou tape en rōmaji">
         <button class="act" id="kbdCheck">Vérifier</button>
       </div>
     </div>
